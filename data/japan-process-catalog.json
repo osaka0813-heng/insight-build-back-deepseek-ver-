@@ -1,0 +1,551 @@
+[
+  {
+    "id": "process-japan-monetary-fx-regime",
+    "scope": "japan",
+    "slug": "japan-monetary-fx-regime",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "Japan monetary and FX regime",
+    "thesis": "Japan is testing whether normalization of interest rates, currency intervention, wage growth and fiscal credibility can coexist without destabilizing the yen or domestic demand.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Monetary Policy",
+      "FX",
+      "Wages",
+      "Fiscal Policy",
+      "Capital Flows"
+    ],
+    "tags": [
+      "japan",
+      "yen",
+      "boj",
+      "fx",
+      "rates",
+      "intervention",
+      "wages",
+      "inflation",
+      "bonds",
+      "carry-trade"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan monetary and FX regime",
+        "summary": "Rates, the yen, wages, intervention and fiscal credibility are becoming one connected policy system.",
+        "thesis": "Japan is testing whether monetary normalization can proceed without losing control of the yen, domestic demand or sovereign financing conditions.",
+        "nextQuestion": "Can the BOJ normalize policy while preserving confidence in the yen and the domestic reflation cycle?",
+        "domains": [
+          "Monetary policy",
+          "FX",
+          "Wages",
+          "Fiscal policy",
+          "Capital flows"
+        ],
+        "storyLabel": "From deflation management to credibility management",
+        "currentStageLabel": "Normalization stress test",
+        "stageSummary": "The system is moving from ending deflation toward managing the interaction of rates, the yen, wages and fiscal credibility.",
+        "observeNext": [
+          "BOJ guidance and rate path",
+          "Yen intervention effectiveness",
+          "Real wage trend",
+          "JGB demand and term premium"
+        ]
+      },
+      "zh": {
+        "title": "日本货币与汇率体制",
+        "summary": "利率、日元、工资、汇率干预与财政可信度正在变成同一个政策系统。",
+        "thesis": "日本正在测试：货币政策正常化能否在不失去日元稳定、内需与国债融资条件的情况下继续推进。",
+        "nextQuestion": "日本央行能否在继续正常化的同时，维持日元与国内再通胀循环的可信度？",
+        "domains": [
+          "货币政策",
+          "汇率",
+          "工资",
+          "财政政策",
+          "资本流动"
+        ],
+        "storyLabel": "从管理通缩转向管理政策可信度",
+        "currentStageLabel": "正常化压力测试期",
+        "stageSummary": "系统焦点正在从结束通缩，转向管理利率、日元、工资与财政可信度之间的相互作用。",
+        "observeNext": [
+          "日本央行指引与加息路径",
+          "日元干预有效性",
+          "实际工资趋势",
+          "日本国债需求与期限溢价"
+        ]
+      },
+      "ja": {
+        "title": "日本の金融・為替レジーム",
+        "summary": "金利、円、賃金、為替介入、財政への信認が一つの政策システムとして結びつき始めている。",
+        "thesis": "日本は、円相場・内需・国債の資金調達環境を不安定化させずに金融正常化を進められるかを試している。",
+        "nextQuestion": "日銀は円と国内リフレ循環への信認を保ちながら正常化を続けられるか。",
+        "domains": [
+          "金融政策",
+          "為替",
+          "賃金",
+          "財政政策",
+          "資本フロー"
+        ],
+        "storyLabel": "デフレ管理から政策信認の管理へ",
+        "currentStageLabel": "正常化ストレステスト期",
+        "stageSummary": "焦点はデフレ脱却から、金利・円・賃金・財政信認の相互作用の管理へ移っている。",
+        "observeNext": [
+          "日銀のガイダンスと利上げ経路",
+          "円買い介入の有効性",
+          "実質賃金の推移",
+          "国債需要とタームプレミアム"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-japan-wage-inflation-cycle",
+    "scope": "japan",
+    "slug": "japan-wage-inflation-cycle",
+    "status": "emerging",
+    "confidence": "developing",
+    "title": "Japan wage-inflation cycle",
+    "thesis": "Japan's exit from deflation depends on whether wage gains broaden beyond large firms and continue to support household purchasing power after inflation.",
+    "currentStage": "emerging",
+    "domains": [
+      "Wages",
+      "Inflation",
+      "Consumption",
+      "Labor"
+    ],
+    "tags": [
+      "japan",
+      "wages",
+      "shunto",
+      "inflation",
+      "consumption",
+      "labor",
+      "productivity"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan wage-inflation cycle",
+        "summary": "The key question is whether nominal wage gains become durable real-income growth.",
+        "thesis": "A durable post-deflation regime requires wage growth to broaden and outrun inflation often enough to support consumption.",
+        "nextQuestion": "Will wage gains diffuse from large firms to SMEs and households?",
+        "domains": [
+          "Wages",
+          "Inflation",
+          "Consumption",
+          "Labor"
+        ],
+        "storyLabel": "From price increases to income-led reflation",
+        "currentStageLabel": "Diffusion test",
+        "stageSummary": "Headline wage settlements are improving, but breadth and real purchasing power remain decisive.",
+        "observeNext": [
+          "Shunto wage settlements",
+          "SME wage growth",
+          "Real household income",
+          "Services inflation"
+        ]
+      },
+      "zh": {
+        "title": "日本工资—通胀循环",
+        "summary": "关键在于名义工资上涨能否变成持续的实际收入增长。",
+        "thesis": "真正走出通缩，需要工资增长扩散到更广泛企业，并足以持续支撑消费。",
+        "nextQuestion": "工资上涨能否从大企业扩散到中小企业与家庭？",
+        "domains": [
+          "工资",
+          "通胀",
+          "消费",
+          "劳动力"
+        ],
+        "storyLabel": "从价格上涨转向收入驱动的再通胀",
+        "currentStageLabel": "扩散测试期",
+        "stageSummary": "春斗工资改善，但覆盖范围与实际购买力仍是关键。",
+        "observeNext": [
+          "春斗工资结果",
+          "中小企业工资",
+          "家庭实际收入",
+          "服务业通胀"
+        ]
+      },
+      "ja": {
+        "title": "日本の賃金・物価循環",
+        "summary": "名目賃金の上昇が持続的な実質所得の増加になるかが焦点。",
+        "thesis": "デフレ脱却を定着させるには、賃上げが広がり、物価上昇を十分に上回る局面が続く必要がある。",
+        "nextQuestion": "賃上げは大企業から中小企業と家計へ広がるか。",
+        "domains": [
+          "賃金",
+          "物価",
+          "消費",
+          "労働"
+        ],
+        "storyLabel": "価格上昇から所得主導のリフレへ",
+        "currentStageLabel": "波及テスト期",
+        "stageSummary": "春闘賃上げは改善しているが、広がりと実質購買力が決定的。",
+        "observeNext": [
+          "春闘賃上げ",
+          "中小企業の賃金",
+          "家計の実質所得",
+          "サービス物価"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-japan-demography-labor",
+    "scope": "japan",
+    "slug": "japan-demography-labor",
+    "status": "accelerating",
+    "confidence": "verified",
+    "title": "Japan demographic and labor transition",
+    "thesis": "Population decline and labor scarcity are changing wages, automation, immigration, regional services and the economics of domestic capacity.",
+    "currentStage": "structural",
+    "domains": [
+      "Demography",
+      "Labor",
+      "Automation",
+      "Immigration"
+    ],
+    "tags": [
+      "japan",
+      "population",
+      "labor",
+      "immigration",
+      "automation",
+      "aging",
+      "productivity"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan demographic and labor transition",
+        "summary": "Labor scarcity is becoming a system constraint across services, industry and regions.",
+        "thesis": "Population decline is no longer background demography; it directly shapes wages, automation, migration policy and service viability.",
+        "nextQuestion": "Which institutions adapt fastest to permanent labor scarcity?",
+        "domains": [
+          "Demography",
+          "Labor",
+          "Automation",
+          "Immigration"
+        ],
+        "storyLabel": "From aging society to labor-constrained economy",
+        "currentStageLabel": "Structural scarcity",
+        "stageSummary": "Labor scarcity increasingly determines operational capacity and policy choices.",
+        "observeNext": [
+          "Labor participation",
+          "Foreign worker policy",
+          "Automation investment",
+          "Regional service closures"
+        ]
+      },
+      "zh": {
+        "title": "日本人口与劳动力转型",
+        "summary": "劳动力稀缺正在成为服务业、制造业和地方经济的系统约束。",
+        "thesis": "人口减少已不再只是背景变量，而是在直接改变工资、自动化、移民政策与公共服务可持续性。",
+        "nextQuestion": "哪些制度能够最快适应长期劳动力短缺？",
+        "domains": [
+          "人口",
+          "劳动力",
+          "自动化",
+          "移民"
+        ],
+        "storyLabel": "从老龄社会进入劳动力约束型经济",
+        "currentStageLabel": "结构性稀缺期",
+        "stageSummary": "劳动力稀缺越来越直接决定经营能力与政策选择。",
+        "observeNext": [
+          "劳动参与率",
+          "外国劳动力政策",
+          "自动化投资",
+          "地方服务收缩"
+        ]
+      },
+      "ja": {
+        "title": "日本の人口・労働転換",
+        "summary": "人手不足がサービス、産業、地域のシステム制約になっている。",
+        "thesis": "人口減少は背景条件ではなく、賃金、自動化、移民政策、サービス維持を直接左右し始めている。",
+        "nextQuestion": "恒常的な人手不足に最も早く適応する制度は何か。",
+        "domains": [
+          "人口",
+          "労働",
+          "自動化",
+          "移民"
+        ],
+        "storyLabel": "高齢社会から労働制約経済へ",
+        "currentStageLabel": "構造的人手不足",
+        "stageSummary": "人手不足が事業能力と政策選択を直接規定しつつある。",
+        "observeNext": [
+          "労働参加率",
+          "外国人労働政策",
+          "自動化投資",
+          "地域サービス縮小"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-japan-industrial-reconstruction",
+    "scope": "japan",
+    "slug": "japan-industrial-reconstruction",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "Japan industrial reconstruction",
+    "thesis": "Japan is rebuilding strategic production capacity through semiconductors, batteries, defense, automation and public-private industrial policy.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Industry",
+      "Semiconductors",
+      "Defense",
+      "Automation"
+    ],
+    "tags": [
+      "japan",
+      "industry",
+      "semiconductor",
+      "rapidus",
+      "battery",
+      "defense",
+      "supply-chain",
+      "automation"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan industrial reconstruction",
+        "summary": "Strategic capacity is being rebuilt through coordinated capital, policy and regional ecosystems.",
+        "thesis": "Japan is shifting from preserving legacy industrial strengths toward deliberately rebuilding strategic production systems.",
+        "nextQuestion": "Can subsidy-led projects become self-reinforcing production ecosystems?",
+        "domains": [
+          "Industry",
+          "Semiconductors",
+          "Defense",
+          "Automation"
+        ],
+        "storyLabel": "From industrial inheritance to strategic rebuilding",
+        "currentStageLabel": "Capacity construction",
+        "stageSummary": "Large strategic projects are moving from policy announcement into physical capacity and supplier formation.",
+        "observeNext": [
+          "Rapidus milestones",
+          "Supplier localization",
+          "Defense production capacity",
+          "Battery and robotics investment"
+        ]
+      },
+      "zh": {
+        "title": "日本产业重建",
+        "summary": "日本正在通过资本、政策与地方产业生态协同重建战略产能。",
+        "thesis": "日本正在从守住传统产业优势，转向主动重建半导体、防卫、自动化等战略生产系统。",
+        "nextQuestion": "补贴驱动的大项目能否形成自我强化的产业生态？",
+        "domains": [
+          "产业",
+          "半导体",
+          "防卫",
+          "自动化"
+        ],
+        "storyLabel": "从继承产业优势转向战略性重建",
+        "currentStageLabel": "产能建设期",
+        "stageSummary": "大型战略项目正从政策宣布进入实体产能与供应商形成阶段。",
+        "observeNext": [
+          "Rapidus里程碑",
+          "供应商本地化",
+          "防卫产能",
+          "电池与机器人投资"
+        ]
+      },
+      "ja": {
+        "title": "日本の産業再構築",
+        "summary": "資本・政策・地域エコシステムを組み合わせ、戦略能力を再構築している。",
+        "thesis": "日本は既存の産業優位を守る段階から、半導体・防衛・自動化など戦略生産システムを意図的に再構築する段階へ移っている。",
+        "nextQuestion": "補助金主導の大型案件は自律的な生産エコシステムに育つか。",
+        "domains": [
+          "産業",
+          "半導体",
+          "防衛",
+          "自動化"
+        ],
+        "storyLabel": "産業遺産の維持から戦略的再構築へ",
+        "currentStageLabel": "能力建設期",
+        "stageSummary": "大型戦略案件は政策発表から実物能力と供給網形成へ移りつつある。",
+        "observeNext": [
+          "Rapidusの進捗",
+          "供給者の国内集積",
+          "防衛生産能力",
+          "電池・ロボット投資"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-japan-energy-security",
+    "scope": "japan",
+    "slug": "japan-energy-security",
+    "status": "emerging",
+    "confidence": "developing",
+    "title": "Japan energy security transition",
+    "thesis": "Japan's energy system is balancing import dependence, nuclear restarts, renewables, grid constraints and rising electricity demand from strategic industry.",
+    "currentStage": "emerging",
+    "domains": [
+      "Energy",
+      "Nuclear",
+      "Grid",
+      "Industry"
+    ],
+    "tags": [
+      "japan",
+      "energy",
+      "nuclear",
+      "lng",
+      "grid",
+      "renewables",
+      "electricity",
+      "datacenter"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan energy security transition",
+        "summary": "Energy security is increasingly tied to industrial competitiveness and grid capacity.",
+        "thesis": "Japan must reduce import vulnerability while delivering enough reliable power for electrification and strategic industry.",
+        "nextQuestion": "Can nuclear restarts, grids and renewables expand fast enough to reduce both cost and import exposure?",
+        "domains": [
+          "Energy",
+          "Nuclear",
+          "Grid",
+          "Industry"
+        ],
+        "storyLabel": "From fuel security to power-system capacity",
+        "currentStageLabel": "System rebalancing",
+        "stageSummary": "The energy debate is shifting toward reliability, grid capacity and industrial demand.",
+        "observeNext": [
+          "Nuclear restarts",
+          "LNG import costs",
+          "Grid investment",
+          "Industrial power contracts"
+        ]
+      },
+      "zh": {
+        "title": "日本能源安全转型",
+        "summary": "能源安全越来越直接连接产业竞争力与电网容量。",
+        "thesis": "日本需要在降低进口脆弱性的同时，为电气化与战略产业提供足够可靠的电力。",
+        "nextQuestion": "核电重启、电网与可再生能源能否足够快扩张，同时降低成本与进口依赖？",
+        "domains": [
+          "能源",
+          "核电",
+          "电网",
+          "产业"
+        ],
+        "storyLabel": "从燃料安全转向电力系统容量",
+        "currentStageLabel": "系统再平衡期",
+        "stageSummary": "能源议题正转向可靠性、电网容量与产业用电需求。",
+        "observeNext": [
+          "核电重启",
+          "LNG进口成本",
+          "电网投资",
+          "产业长期电力合同"
+        ]
+      },
+      "ja": {
+        "title": "日本のエネルギー安全保障転換",
+        "summary": "エネルギー安全保障が産業競争力と系統容量に直結し始めている。",
+        "thesis": "輸入依存の脆弱性を下げつつ、電化と戦略産業に十分な安定電力を供給する必要がある。",
+        "nextQuestion": "原発再稼働、系統、再エネはコストと輸入依存を同時に下げる速度で拡大できるか。",
+        "domains": [
+          "エネルギー",
+          "原子力",
+          "系統",
+          "産業"
+        ],
+        "storyLabel": "燃料安全保障から電力システム能力へ",
+        "currentStageLabel": "システム再均衡期",
+        "stageSummary": "議論は燃料調達から、信頼性・系統容量・産業需要へ移っている。",
+        "observeNext": [
+          "原発再稼働",
+          "LNG輸入コスト",
+          "系統投資",
+          "産業向け長期電力契約"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-japan-security-alliance",
+    "scope": "japan",
+    "slug": "japan-security-alliance",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "Japan security and alliance transformation",
+    "thesis": "Japan is moving from a constrained postwar security posture toward deeper operational integration, defense production and regional deterrence.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Security",
+      "Defense",
+      "Alliance",
+      "Industry"
+    ],
+    "tags": [
+      "japan",
+      "defense",
+      "security",
+      "alliance",
+      "us-japan",
+      "indo-pacific",
+      "missiles"
+    ],
+    "content": {
+      "en": {
+        "title": "Japan security and alliance transformation",
+        "summary": "Defense policy is shifting from legal posture toward operational capacity and industrial depth.",
+        "thesis": "Japan's security role is becoming more operational, integrated and production-intensive.",
+        "nextQuestion": "Will higher spending translate into deployable capacity and durable alliance integration?",
+        "domains": [
+          "Security",
+          "Defense",
+          "Alliance",
+          "Industry"
+        ],
+        "storyLabel": "From policy constraint to operational integration",
+        "currentStageLabel": "Operational buildout",
+        "stageSummary": "Budgets and doctrine increasingly require concrete command, logistics and production capacity.",
+        "observeNext": [
+          "Defense procurement",
+          "Joint command integration",
+          "Missile and munitions capacity",
+          "Regional basing"
+        ]
+      },
+      "zh": {
+        "title": "日本安全与同盟转型",
+        "summary": "防卫政策正在从法律与姿态问题转向实际作战能力和产业纵深。",
+        "thesis": "日本的安全角色正在变得更具操作性、更深度同盟化，也更依赖防卫生产能力。",
+        "nextQuestion": "更高防卫支出能否真正转化为可部署能力与持续的同盟整合？",
+        "domains": [
+          "安全",
+          "防卫",
+          "同盟",
+          "产业"
+        ],
+        "storyLabel": "从政策约束转向作战整合",
+        "currentStageLabel": "能力扩张期",
+        "stageSummary": "预算与战略越来越要求具体的指挥、后勤与生产能力。",
+        "observeNext": [
+          "防卫采购",
+          "联合指挥整合",
+          "导弹与弹药产能",
+          "区域部署"
+        ]
+      },
+      "ja": {
+        "title": "日本の安全保障・同盟転換",
+        "summary": "防衛政策は法的姿勢から実際の運用能力と産業基盤へ重心を移している。",
+        "thesis": "日本の安全保障上の役割は、より運用的・統合的・生産能力依存型になっている。",
+        "nextQuestion": "防衛費増加は実際に展開可能な能力と持続的な同盟統合へつながるか。",
+        "domains": [
+          "安全保障",
+          "防衛",
+          "同盟",
+          "産業"
+        ],
+        "storyLabel": "政策制約から運用統合へ",
+        "currentStageLabel": "能力拡張期",
+        "stageSummary": "予算と戦略は具体的な指揮、兵站、生産能力を要求し始めている。",
+        "observeNext": [
+          "防衛調達",
+          "統合司令部",
+          "ミサイル・弾薬能力",
+          "地域配備"
+        ]
+      }
+    }
+  }
+]

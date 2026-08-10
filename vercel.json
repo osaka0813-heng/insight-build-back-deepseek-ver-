@@ -1,0 +1,42 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/research.mjs": {
+      "maxDuration": 300
+    },
+    "api/write.mjs": {
+      "maxDuration": 300
+    },
+    "api/analyze.mjs": {
+      "maxDuration": 300
+    },
+    "api/auto-start.mjs": {
+      "maxDuration": 300
+    },
+    "api/auto-status.mjs": {
+      "maxDuration": 300
+    },
+    "api/auto-resume.mjs": {
+      "maxDuration": 300
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, x-research-token, x-publish-token, x-admin-token"
+        }
+      ]
+    }
+  ]
+}

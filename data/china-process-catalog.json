@@ -1,0 +1,366 @@
+[
+  {
+    "id": "process-china-property-local-finance",
+    "scope": "china",
+    "slug": "china-property-local-finance",
+    "status": "structural",
+    "confidence": "developing",
+    "title": "China property and local-finance transition",
+    "thesis": "China is managing a long transition from property-led local finance toward new fiscal and investment models while containing balance-sheet stress.",
+    "currentStage": "structural",
+    "domains": [
+      "Property",
+      "Local Finance",
+      "Credit",
+      "Fiscal Policy"
+    ],
+    "tags": [
+      "china",
+      "property",
+      "local-government",
+      "debt",
+      "credit",
+      "fiscal",
+      "banks",
+      "investment"
+    ],
+    "content": {
+      "en": {
+        "title": "China property and local-finance transition",
+        "summary": "Property, local fiscal capacity and credit allocation are being reworked as one balance-sheet system.",
+        "thesis": "The core transition is from land-and-property-led financing toward a model that can absorb legacy debt without recreating the old leverage cycle.",
+        "nextQuestion": "Can local fiscal capacity stabilize without another property-credit boom?",
+        "domains": [
+          "Property",
+          "Local finance",
+          "Credit",
+          "Fiscal policy"
+        ],
+        "storyLabel": "From property-led expansion to balance-sheet repair",
+        "currentStageLabel": "Structural repair",
+        "stageSummary": "The system is absorbing property losses while searching for replacement fiscal and investment channels.",
+        "observeNext": [
+          "Home sales and inventories",
+          "Local debt restructuring",
+          "Bank asset quality",
+          "Central-local fiscal transfers"
+        ]
+      },
+      "zh": {
+        "title": "中国房地产与地方财政转型",
+        "summary": "房地产、地方财政能力与信贷配置正在作为同一个资产负债表系统被重新调整。",
+        "thesis": "核心转型是从土地与地产驱动的融资模式，转向能够消化旧债、又不重新制造高杠杆循环的新机制。",
+        "nextQuestion": "地方财政能否在不重启房地产信贷繁荣的情况下稳定下来？",
+        "domains": [
+          "房地产",
+          "地方财政",
+          "信贷",
+          "财政政策"
+        ],
+        "storyLabel": "从地产驱动扩张转向资产负债表修复",
+        "currentStageLabel": "结构修复期",
+        "stageSummary": "系统正在吸收房地产损失，并寻找新的财政与投资渠道。",
+        "observeNext": [
+          "住宅销售与库存",
+          "地方债务重组",
+          "银行资产质量",
+          "中央与地方财政转移"
+        ]
+      },
+      "ja": {
+        "title": "中国の不動産・地方財政転換",
+        "summary": "不動産、地方財政力、信用配分が一つのバランスシート問題として再編されている。",
+        "thesis": "土地・不動産主導の資金調達から、旧債務を吸収しつつ過去のレバレッジ循環を再現しない仕組みへの転換が核心。",
+        "nextQuestion": "不動産信用ブームを再開せず地方財政を安定させられるか。",
+        "domains": [
+          "不動産",
+          "地方財政",
+          "信用",
+          "財政政策"
+        ],
+        "storyLabel": "不動産主導拡大からバランスシート修復へ",
+        "currentStageLabel": "構造修復期",
+        "stageSummary": "不動産損失を吸収しながら新たな財政・投資経路を探している。",
+        "observeNext": [
+          "住宅販売と在庫",
+          "地方債務再編",
+          "銀行資産の質",
+          "中央・地方財政移転"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-china-industrial-upgrading",
+    "scope": "china",
+    "slug": "china-industrial-upgrading",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "China industrial upgrading",
+    "thesis": "China is shifting growth toward advanced manufacturing, electrification, automation and export-capable industrial ecosystems.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Manufacturing",
+      "EV",
+      "Robotics",
+      "Exports"
+    ],
+    "tags": [
+      "china",
+      "manufacturing",
+      "ev",
+      "battery",
+      "robotics",
+      "exports",
+      "industry",
+      "automation"
+    ],
+    "content": {
+      "en": {
+        "title": "China industrial upgrading",
+        "summary": "Advanced manufacturing is becoming a larger part of growth, exports and strategic competition.",
+        "thesis": "Industrial policy, scale and supply-chain depth are pushing China from cost manufacturing toward technologically dense production systems.",
+        "nextQuestion": "Can advanced-industry gains offset weaker property and domestic-demand engines?",
+        "domains": [
+          "Manufacturing",
+          "EV",
+          "Robotics",
+          "Exports"
+        ],
+        "storyLabel": "From scale manufacturing to strategic industrial depth",
+        "currentStageLabel": "Acceleration",
+        "stageSummary": "EVs, batteries, robotics and equipment ecosystems are expanding into a broader growth engine.",
+        "observeNext": [
+          "Industrial profits",
+          "EV and battery exports",
+          "Robotics adoption",
+          "Trade restrictions"
+        ]
+      },
+      "zh": {
+        "title": "中国产业升级",
+        "summary": "先进制造正在成为增长、出口与战略竞争中更重要的一部分。",
+        "thesis": "产业政策、规模与供应链深度正在推动中国从成本型制造转向技术密集型生产体系。",
+        "nextQuestion": "先进产业的增长能否抵消房地产与内需引擎的减弱？",
+        "domains": [
+          "制造业",
+          "电动车",
+          "机器人",
+          "出口"
+        ],
+        "storyLabel": "从规模制造转向战略产业纵深",
+        "currentStageLabel": "加速期",
+        "stageSummary": "电动车、电池、机器人与装备生态正在扩展成更广泛的增长引擎。",
+        "observeNext": [
+          "工业利润",
+          "电动车与电池出口",
+          "机器人渗透率",
+          "贸易限制"
+        ]
+      },
+      "ja": {
+        "title": "中国の産業高度化",
+        "summary": "先端製造が成長、輸出、戦略競争の中で比重を高めている。",
+        "thesis": "産業政策、規模、供給網の厚みが中国を低コスト製造から技術集約型生産システムへ押し上げている。",
+        "nextQuestion": "先端産業の伸びは不動産と内需の弱さを相殺できるか。",
+        "domains": [
+          "製造",
+          "EV",
+          "ロボット",
+          "輸出"
+        ],
+        "storyLabel": "規模製造から戦略的産業厚みへ",
+        "currentStageLabel": "加速期",
+        "stageSummary": "EV、電池、ロボット、設備産業の生態系が成長エンジンへ拡大している。",
+        "observeNext": [
+          "工業利益",
+          "EV・電池輸出",
+          "ロボット導入",
+          "貿易規制"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-china-tech-autonomy",
+    "scope": "china",
+    "slug": "china-tech-autonomy",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "China technology autonomy",
+    "thesis": "China is building domestic capability across semiconductors, AI infrastructure, software and strategic equipment under external technology constraints.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Semiconductors",
+      "AI",
+      "Equipment",
+      "Software"
+    ],
+    "tags": [
+      "china",
+      "semiconductor",
+      "ai",
+      "compute",
+      "export-control",
+      "equipment",
+      "software",
+      "technology"
+    ],
+    "content": {
+      "en": {
+        "title": "China technology autonomy",
+        "summary": "External constraints are accelerating domestic substitution and capability-building.",
+        "thesis": "The key question is whether substitution can move from partial resilience toward frontier-scale capability.",
+        "nextQuestion": "Where does domestic capability cross from resilience into global competitiveness?",
+        "domains": [
+          "Semiconductors",
+          "AI",
+          "Equipment",
+          "Software"
+        ],
+        "storyLabel": "From import substitution to strategic autonomy",
+        "currentStageLabel": "Capability race",
+        "stageSummary": "Compute, fabrication, equipment and software are being developed as a connected strategic stack.",
+        "observeNext": [
+          "Advanced-node yields",
+          "Domestic equipment share",
+          "AI accelerator supply",
+          "Software ecosystem adoption"
+        ]
+      },
+      "zh": {
+        "title": "中国科技自主化",
+        "summary": "外部技术约束正在加快国产替代与能力建设。",
+        "thesis": "关键问题是国产替代能否从局部韧性升级为接近前沿的系统能力。",
+        "nextQuestion": "哪些领域会从“可替代”跨越到“全球竞争力”？",
+        "domains": [
+          "半导体",
+          "AI",
+          "设备",
+          "软件"
+        ],
+        "storyLabel": "从进口替代转向战略自主",
+        "currentStageLabel": "能力竞赛期",
+        "stageSummary": "算力、制造、设备与软件正在作为一体化战略技术栈建设。",
+        "observeNext": [
+          "先进制程良率",
+          "国产设备份额",
+          "AI加速器供应",
+          "软件生态采用"
+        ]
+      },
+      "ja": {
+        "title": "中国の技術自立",
+        "summary": "外部制約が国内代替と能力構築を加速させている。",
+        "thesis": "部分的な耐性から最先端規模の能力へ進めるかが核心。",
+        "nextQuestion": "どの分野で国内能力が耐性から国際競争力へ移るか。",
+        "domains": [
+          "半導体",
+          "AI",
+          "装置",
+          "ソフトウェア"
+        ],
+        "storyLabel": "輸入代替から戦略的自立へ",
+        "currentStageLabel": "能力競争期",
+        "stageSummary": "計算資源、製造、装置、ソフトウェアを一体の戦略スタックとして構築している。",
+        "observeNext": [
+          "先端ノード歩留まり",
+          "国産装置比率",
+          "AIアクセラレータ供給",
+          "ソフトウェア生態系"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-china-demand-rebalancing",
+    "scope": "china",
+    "slug": "china-demand-rebalancing",
+    "status": "emerging",
+    "confidence": "developing",
+    "title": "China domestic-demand rebalancing",
+    "thesis": "China is trying to rebalance growth toward household demand while weak confidence, housing adjustment and high savings restrain consumption.",
+    "currentStage": "emerging",
+    "domains": [
+      "Consumption",
+      "Households",
+      "Services",
+      "Fiscal Policy"
+    ],
+    "tags": [
+      "china",
+      "consumption",
+      "households",
+      "savings",
+      "services",
+      "fiscal",
+      "income",
+      "confidence"
+    ],
+    "content": {
+      "en": {
+        "title": "China domestic-demand rebalancing",
+        "summary": "Household demand is becoming the critical test of a less investment-heavy growth model.",
+        "thesis": "Rebalancing requires household income and confidence to rise enough to reduce dependence on property and infrastructure investment.",
+        "nextQuestion": "Can policy shift resources toward households strongly enough to change the savings-consumption balance?",
+        "domains": [
+          "Consumption",
+          "Households",
+          "Services",
+          "Fiscal policy"
+        ],
+        "storyLabel": "From investment dependence to household demand",
+        "currentStageLabel": "Rebalancing test",
+        "stageSummary": "Consumption support is growing in importance but confidence and housing wealth remain constraints.",
+        "observeNext": [
+          "Retail and services spending",
+          "Household income",
+          "Savings rate",
+          "Consumer support policy"
+        ]
+      },
+      "zh": {
+        "title": "中国内需再平衡",
+        "summary": "家庭需求正在成为降低投资依赖型增长模式的关键测试。",
+        "thesis": "再平衡需要家庭收入与信心提高到足以降低对房地产和基建投资的依赖。",
+        "nextQuestion": "政策能否把足够多资源转向家庭，从而真正改变储蓄—消费结构？",
+        "domains": [
+          "消费",
+          "家庭",
+          "服务业",
+          "财政政策"
+        ],
+        "storyLabel": "从投资依赖转向家庭需求",
+        "currentStageLabel": "再平衡测试期",
+        "stageSummary": "消费支持的重要性上升，但信心与房地产财富效应仍形成约束。",
+        "observeNext": [
+          "零售与服务消费",
+          "家庭收入",
+          "储蓄率",
+          "消费支持政策"
+        ]
+      },
+      "ja": {
+        "title": "中国の内需再均衡",
+        "summary": "家計需要が投資依存型成長からの転換を測る重要な試金石になっている。",
+        "thesis": "再均衡には、家計所得と信頼感が不動産・インフラ投資への依存を下げるほど改善する必要がある。",
+        "nextQuestion": "政策は貯蓄と消費のバランスを変えるほど家計へ資源を移せるか。",
+        "domains": [
+          "消費",
+          "家計",
+          "サービス",
+          "財政政策"
+        ],
+        "storyLabel": "投資依存から家計需要へ",
+        "currentStageLabel": "再均衡テスト期",
+        "stageSummary": "消費支援の重要性は増しているが信頼感と住宅資産効果が制約。",
+        "observeNext": [
+          "小売・サービス支出",
+          "家計所得",
+          "貯蓄率",
+          "消費支援策"
+        ]
+      }
+    }
+  }
+]

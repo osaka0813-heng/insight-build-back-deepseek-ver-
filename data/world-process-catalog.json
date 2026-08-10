@@ -1,0 +1,34 @@
+[
+  {
+    "id": "process-ai-infrastructure-race",
+    "title": "The AI infrastructure race",
+    "thesis": "Durable AI advantage depends on repeatedly converting intelligence into dependable large-scale capacity across compute, power, land, construction and finance.",
+    "currentStage": "structural",
+    "domains": ["AI", "Energy", "Semiconductors", "Physical Infrastructure"],
+    "tags": ["ai", "compute", "datacenter", "electricity", "grid", "semiconductor", "capital", "land", "finance", "generation"]
+  },
+  {
+    "id": "process-energy-security",
+    "title": "Energy becomes strategic capacity",
+    "thesis": "Reliable energy access increasingly determines where strategic digital and industrial capacity can grow.",
+    "currentStage": "accelerating",
+    "domains": ["Energy", "Grid", "Industry", "Geopolitics"],
+    "tags": ["electricity", "grid", "energy", "datacenter", "industry", "nuclear", "geopolitics", "capital", "generation", "storage"]
+  },
+  {
+    "id": "process-semiconductor-capacity",
+    "title": "Semiconductor capacity becomes geopolitical infrastructure",
+    "thesis": "Semiconductor advantage depends on coordinated manufacturing ecosystems, policy, equipment, talent and allied supply chains.",
+    "currentStage": "accelerating",
+    "domains": ["Semiconductors", "Manufacturing", "Policy", "Geopolitics"],
+    "tags": ["semiconductor", "compute", "manufacturing", "supply-chain", "policy", "geopolitics", "capital", "ai"]
+  },
+  {
+    "id": "process-geopolitical-technology-control",
+    "title": "Technology control becomes geopolitical infrastructure",
+    "thesis": "The geography of technological growth is increasingly shaped by security policy, alliances and controlled access to critical capacity.",
+    "currentStage": "accelerating",
+    "domains": ["Geopolitics", "Technology Policy", "Security", "Supply Chains"],
+    "tags": ["geopolitics", "policy", "export-control", "semiconductor", "energy", "supply-chain", "ai", "security", "federal-land"]
+  }
+]

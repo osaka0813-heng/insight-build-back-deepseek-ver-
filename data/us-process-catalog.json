@@ -1,0 +1,366 @@
+[
+  {
+    "id": "process-us-fiscal-rates-dollar",
+    "scope": "us",
+    "slug": "us-fiscal-rates-dollar",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "US fiscal, rates and dollar regime",
+    "thesis": "US fiscal deficits, Treasury supply, inflation, Federal Reserve policy and global dollar demand increasingly interact as one macro-financial system.",
+    "currentStage": "accelerating",
+    "domains": [
+      "Fiscal Policy",
+      "Rates",
+      "Dollar",
+      "Treasuries"
+    ],
+    "tags": [
+      "us",
+      "fiscal",
+      "treasury",
+      "rates",
+      "fed",
+      "dollar",
+      "inflation",
+      "liquidity"
+    ],
+    "content": {
+      "en": {
+        "title": "US fiscal, rates and dollar regime",
+        "summary": "Deficits, Treasury supply, Fed policy and dollar demand are becoming one market constraint.",
+        "thesis": "The US macro regime increasingly depends on whether large fiscal financing needs can coexist with stable inflation and durable demand for dollar assets.",
+        "nextQuestion": "Can Treasury supply rise without forcing a structurally higher cost of capital?",
+        "domains": [
+          "Fiscal policy",
+          "Rates",
+          "Dollar",
+          "Treasuries"
+        ],
+        "storyLabel": "From monetary cycle to fiscal-monetary interaction",
+        "currentStageLabel": "Financing stress test",
+        "stageSummary": "Rates are increasingly shaped by the interaction of inflation, deficits, Treasury supply and global capital demand.",
+        "observeNext": [
+          "Treasury auctions",
+          "Term premium",
+          "Fed reaction function",
+          "Foreign demand for Treasuries"
+        ]
+      },
+      "zh": {
+        "title": "美国财政—利率—美元体制",
+        "summary": "财政赤字、国债供给、美联储政策与美元需求正在变成同一个市场约束。",
+        "thesis": "美国宏观体制越来越取决于：大规模财政融资需求能否与稳定通胀和持续的美元资产需求共存。",
+        "nextQuestion": "国债供给持续上升，是否会把资本成本结构性推高？",
+        "domains": [
+          "财政政策",
+          "利率",
+          "美元",
+          "美国国债"
+        ],
+        "storyLabel": "从货币周期转向财政—货币互动",
+        "currentStageLabel": "融资压力测试期",
+        "stageSummary": "利率越来越由通胀、赤字、国债供给与全球资本需求共同塑造。",
+        "observeNext": [
+          "美国国债拍卖",
+          "期限溢价",
+          "美联储反应函数",
+          "海外国债需求"
+        ]
+      },
+      "ja": {
+        "title": "米国の財政・金利・ドル体制",
+        "summary": "財政赤字、国債供給、FRB政策、ドル需要が一つの市場制約として結びついている。",
+        "thesis": "巨額の財政資金需要が安定したインフレとドル資産需要と共存できるかが米国マクロ体制の核心。",
+        "nextQuestion": "国債供給の増加は資本コストを構造的に押し上げるか。",
+        "domains": [
+          "財政政策",
+          "金利",
+          "ドル",
+          "米国債"
+        ],
+        "storyLabel": "金融サイクルから財政・金融相互作用へ",
+        "currentStageLabel": "資金調達ストレステスト",
+        "stageSummary": "金利はインフレ、赤字、国債供給、世界資本需要の相互作用に左右されつつある。",
+        "observeNext": [
+          "国債入札",
+          "タームプレミアム",
+          "FRB反応関数",
+          "海外の米国債需要"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-us-ai-capex-power",
+    "scope": "us",
+    "slug": "us-ai-capex-power",
+    "status": "accelerating",
+    "confidence": "developing",
+    "title": "US AI capital expenditure and power buildout",
+    "thesis": "US AI expansion is turning into an industrial investment cycle linking hyperscaler capex, data centers, power generation, grid capacity and project finance.",
+    "currentStage": "accelerating",
+    "domains": [
+      "AI",
+      "Capital",
+      "Power",
+      "Data Centers"
+    ],
+    "tags": [
+      "us",
+      "ai",
+      "capex",
+      "datacenter",
+      "power",
+      "grid",
+      "finance",
+      "compute"
+    ],
+    "content": {
+      "en": {
+        "title": "US AI capital expenditure and power buildout",
+        "summary": "AI is becoming a physical capital cycle tied to electricity and infrastructure finance.",
+        "thesis": "The limiting factor is shifting from model access toward the ability to finance and power large-scale compute capacity.",
+        "nextQuestion": "Does AI capex continue to earn returns fast enough to justify the power-and-data-center buildout?",
+        "domains": [
+          "AI",
+          "Capital",
+          "Power",
+          "Data centers"
+        ],
+        "storyLabel": "From software spending to industrial AI buildout",
+        "currentStageLabel": "Industrial capex phase",
+        "stageSummary": "Compute investment is pulling power, land, financing and utility planning into the AI cycle.",
+        "observeNext": [
+          "Hyperscaler capex",
+          "Data-center financing",
+          "Power purchase agreements",
+          "Grid interconnection queues"
+        ]
+      },
+      "zh": {
+        "title": "美国AI资本开支与电力扩张",
+        "summary": "AI正在变成一个与电力和基础设施融资绑定的实体资本周期。",
+        "thesis": "约束正在从模型获取转向大规模算力的融资与供电能力。",
+        "nextQuestion": "AI资本开支的回报能否足以持续支撑数据中心与电力扩张？",
+        "domains": [
+          "AI",
+          "资本",
+          "电力",
+          "数据中心"
+        ],
+        "storyLabel": "从软件支出转向工业化AI建设",
+        "currentStageLabel": "工业资本开支期",
+        "stageSummary": "算力投资正在把电力、土地、融资与公用事业规划拉入AI周期。",
+        "observeNext": [
+          "云厂商资本开支",
+          "数据中心融资",
+          "长期购电协议",
+          "电网接入排队"
+        ]
+      },
+      "ja": {
+        "title": "米国のAI設備投資・電力増強",
+        "summary": "AIが電力とインフラ金融に結びつく実物資本サイクルになっている。",
+        "thesis": "制約はモデル利用から、大規模計算能力を資金調達し電力供給する能力へ移っている。",
+        "nextQuestion": "AI投資収益はデータセンターと電源建設を正当化し続けられるか。",
+        "domains": [
+          "AI",
+          "資本",
+          "電力",
+          "データセンター"
+        ],
+        "storyLabel": "ソフトウェア支出から産業AI建設へ",
+        "currentStageLabel": "産業設備投資期",
+        "stageSummary": "計算投資が電力、土地、金融、公益事業計画をAIサイクルへ巻き込んでいる。",
+        "observeNext": [
+          "ハイパースケーラー設備投資",
+          "データセンター金融",
+          "長期電力契約",
+          "系統接続待ち"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-us-reindustrialization",
+    "scope": "us",
+    "slug": "us-reindustrialization",
+    "status": "emerging",
+    "confidence": "developing",
+    "title": "US reindustrialization",
+    "thesis": "The US is rebuilding strategic production capacity through semiconductors, batteries, defense, energy and domestic supply-chain investment.",
+    "currentStage": "emerging",
+    "domains": [
+      "Manufacturing",
+      "Semiconductors",
+      "Energy",
+      "Defense"
+    ],
+    "tags": [
+      "us",
+      "manufacturing",
+      "semiconductor",
+      "battery",
+      "defense",
+      "energy",
+      "supply-chain",
+      "industry"
+    ],
+    "content": {
+      "en": {
+        "title": "US reindustrialization",
+        "summary": "Strategic manufacturing is moving back into policy, capital allocation and regional development.",
+        "thesis": "The US is testing whether subsidies, demand guarantees and strategic procurement can rebuild complete industrial ecosystems.",
+        "nextQuestion": "Will announced factories become competitive operating ecosystems rather than isolated projects?",
+        "domains": [
+          "Manufacturing",
+          "Semiconductors",
+          "Energy",
+          "Defense"
+        ],
+        "storyLabel": "From offshoring efficiency to strategic capacity",
+        "currentStageLabel": "Buildout test",
+        "stageSummary": "New capacity is being built, but labor, suppliers, power and cost competitiveness determine durability.",
+        "observeNext": [
+          "Factory utilization",
+          "Supplier localization",
+          "Industrial power costs",
+          "Defense production output"
+        ]
+      },
+      "zh": {
+        "title": "美国再工业化",
+        "summary": "战略制造正在重新进入政策、资本配置与区域发展核心。",
+        "thesis": "美国正在测试补贴、需求保障与战略采购能否重建完整产业生态。",
+        "nextQuestion": "已宣布的工厂能否变成有竞争力的运营生态，而不只是孤立项目？",
+        "domains": [
+          "制造业",
+          "半导体",
+          "能源",
+          "防卫"
+        ],
+        "storyLabel": "从离岸效率转向战略产能",
+        "currentStageLabel": "建设测试期",
+        "stageSummary": "新产能正在建设，但劳动力、供应商、电力与成本竞争力决定其持续性。",
+        "observeNext": [
+          "工厂利用率",
+          "供应商本地化",
+          "工业电价",
+          "防卫生产产出"
+        ]
+      },
+      "ja": {
+        "title": "米国の再工業化",
+        "summary": "戦略製造が政策、資本配分、地域開発の中心へ戻っている。",
+        "thesis": "補助金、需要保証、戦略調達で完全な産業生態系を再構築できるかを試している。",
+        "nextQuestion": "発表された工場は孤立案件ではなく競争力ある運用生態系になるか。",
+        "domains": [
+          "製造",
+          "半導体",
+          "エネルギー",
+          "防衛"
+        ],
+        "storyLabel": "オフショア効率から戦略能力へ",
+        "currentStageLabel": "建設テスト期",
+        "stageSummary": "新能力は建設中だが、人材、供給者、電力、コスト競争力が持続性を決める。",
+        "observeNext": [
+          "工場稼働率",
+          "供給者国内化",
+          "産業電力コスト",
+          "防衛生産量"
+        ]
+      }
+    }
+  },
+  {
+    "id": "process-us-labor-immigration",
+    "scope": "us",
+    "slug": "us-labor-immigration",
+    "status": "emerging",
+    "confidence": "developing",
+    "title": "US labor and immigration regime",
+    "thesis": "US labor supply, immigration, wage pressure, demographics and automation are increasingly linked to growth capacity and inflation.",
+    "currentStage": "emerging",
+    "domains": [
+      "Labor",
+      "Immigration",
+      "Wages",
+      "Automation"
+    ],
+    "tags": [
+      "us",
+      "labor",
+      "immigration",
+      "wages",
+      "employment",
+      "automation",
+      "demography",
+      "inflation"
+    ],
+    "content": {
+      "en": {
+        "title": "US labor and immigration regime",
+        "summary": "Labor supply is becoming a structural variable for growth, inflation and industrial capacity.",
+        "thesis": "Changes in immigration and participation can alter wage pressure, service inflation and the feasibility of reindustrialization.",
+        "nextQuestion": "Can productivity and participation offset tighter labor-supply conditions?",
+        "domains": [
+          "Labor",
+          "Immigration",
+          "Wages",
+          "Automation"
+        ],
+        "storyLabel": "From cyclical employment to structural labor supply",
+        "currentStageLabel": "Supply constraint test",
+        "stageSummary": "Labor availability increasingly influences inflation and physical investment capacity.",
+        "observeNext": [
+          "Labor-force growth",
+          "Immigration flows",
+          "Wage growth",
+          "Automation investment"
+        ]
+      },
+      "zh": {
+        "title": "美国劳动力与移民体制",
+        "summary": "劳动力供给正在成为增长、通胀与产业产能的结构变量。",
+        "thesis": "移民和劳动参与变化会改变工资压力、服务通胀以及再工业化的可行性。",
+        "nextQuestion": "生产率与劳动参与率能否抵消劳动力供给趋紧？",
+        "domains": [
+          "劳动力",
+          "移民",
+          "工资",
+          "自动化"
+        ],
+        "storyLabel": "从周期性就业转向结构性劳动力供给",
+        "currentStageLabel": "供给约束测试期",
+        "stageSummary": "劳动力可得性越来越直接影响通胀与实体投资能力。",
+        "observeNext": [
+          "劳动力增长",
+          "移民流入",
+          "工资增长",
+          "自动化投资"
+        ]
+      },
+      "ja": {
+        "title": "米国の労働・移民体制",
+        "summary": "労働供給が成長、インフレ、産業能力の構造変数になっている。",
+        "thesis": "移民と参加率の変化が賃金圧力、サービス物価、再工業化の実現可能性を変える。",
+        "nextQuestion": "生産性と参加率は労働供給の引き締まりを相殺できるか。",
+        "domains": [
+          "労働",
+          "移民",
+          "賃金",
+          "自動化"
+        ],
+        "storyLabel": "循環雇用から構造的労働供給へ",
+        "currentStageLabel": "供給制約テスト期",
+        "stageSummary": "労働力の利用可能性がインフレと実物投資能力を左右しつつある。",
+        "observeNext": [
+          "労働力人口",
+          "移民流入",
+          "賃金上昇",
+          "自動化投資"
+        ]
+      }
+    }
+  }
+]

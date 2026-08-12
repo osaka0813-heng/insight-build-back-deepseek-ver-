@@ -9,15 +9,6 @@
     },
     "api/analyze.mjs": {
       "maxDuration": 300
-    },
-    "api/auto-start.mjs": {
-      "maxDuration": 300
-    },
-    "api/auto-status.mjs": {
-      "maxDuration": 300
-    },
-    "api/auto-resume.mjs": {
-      "maxDuration": 300
     }
   },
   "headers": [

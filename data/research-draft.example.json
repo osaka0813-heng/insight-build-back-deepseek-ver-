@@ -1,0 +1,67 @@
+{
+  "id": "research-2026-08-01-sample",
+  "status": "draft",
+  "researchedAt": "2026-08-01T18:00:00+09:00",
+  "researchDate": "2026-08-01",
+  "model": "sample-offline",
+  "querySummary": "AI infrastructure, energy and industrial financing signals",
+  "candidates": [
+    {
+      "id": "research-signal-ai-grid-capacity",
+      "date": "2026-08-01",
+      "domain": "AI Infrastructure",
+      "tags": [
+        "ai",
+        "datacenter",
+        "electricity",
+        "grid"
+      ],
+      "suggestedProcessId": "process-ai-infrastructure-race",
+      "processMatchConfidence": 91,
+      "importance": 86,
+      "novelty": 72,
+      "evidenceStrength": 82,
+      "independentSourceCount": 2,
+      "thesisImpact": 66,
+      "relationshipChange": 74,
+      "stageChange": 48,
+      "contradiction": 8,
+      "content": {
+        "en": {
+          "title": "Grid access is becoming an AI deployment constraint",
+          "coreFact": "New data-center projects increasingly depend on power availability and grid connection timing.",
+          "whyItMatters": "AI capacity may be limited by infrastructure delivery rather than chip supply alone.",
+          "processMatchReason": "This extends the AI infrastructure process from compute into electricity and permitting."
+        },
+        "zh": {
+          "title": "电网接入正成为AI部署约束",
+          "coreFact": "新的数据中心项目越来越依赖电力供应和电网接入时间。",
+          "whyItMatters": "AI容量的限制可能不再只是芯片，而是基础设施交付能力。",
+          "processMatchReason": "这把AI基础设施进程从算力扩展到电力与审批。"
+        },
+        "ja": {
+          "title": "系統接続がAI導入の制約になりつつある",
+          "coreFact": "新しいデータセンター計画は電力供給と系統接続時期への依存を強めています。",
+          "whyItMatters": "AI容量は半導体だけでなく、インフラ整備速度によって制約される可能性があります。",
+          "processMatchReason": "AIインフラ競争を計算資源から電力と許認可へ拡張するシグナルです。"
+        }
+      },
+      "sources": [
+        {
+          "title": "Example primary source placeholder",
+          "url": "https://example.com/primary",
+          "publisher": "Example",
+          "publishedAt": "2026-08-01",
+          "kind": "primary"
+        },
+        {
+          "title": "Example reporting placeholder",
+          "url": "https://example.com/reporting",
+          "publisher": "Example",
+          "publishedAt": "2026-08-01",
+          "kind": "reliable_media"
+        }
+      ]
+    }
+  ]
+}

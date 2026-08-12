@@ -1,50 +1,70 @@
-import { normalizeScope, processCatalogForScope, scopeLabel } from '../lib/processScopes.mjs';
-import { compactUsage, deepseekConfig, deepseekResponsesJSON, deepseekResponsesText } from '../lib/deepseekClient.mjs';
 
-const ALLOWED_METHODS = 'POST, OPTIONS';
-const ALLOWED_HEADERS = 'Content-Type, x-research-token';
+import worldProcesses from '../data/world-process-catalog.json' with { type: 'json' };
+import {
+  compactUsage,
+  deepseekConfig,
+  deepseekResponsesJSON,
+  deepseekResponsesText,
+} from '../lib/deepseekClient.mjs';
 
-function setCorsHeaders(res) {
+function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', ALLOWED_METHODS);
-  res.setHeader('Access-Control-Allow-Headers', ALLOWED_HEADERS);
-  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, x-research-token',
+  );
 }
-function sendJson(res,status,body) { setCorsHeaders(res); res.status(status); res.setHeader('Content-Type','application/json; charset=utf-8'); res.end(JSON.stringify(body)); }
-function parseBody(req) { if(!req.body) return {}; if(typeof req.body==='object') return req.body; try { return JSON.parse(req.body); } catch { const e=new Error('Request body must be valid JSON.'); e.status=400; throw e; } }
 
-const candidateSchema = {
+function send(res, status, payload) {
+  cors(res);
+  return res.status(status).json(payload);
+}
+
+function bodyOf(req) {
+  if (!req.body) return {};
+  if (typeof req.body === 'object') return req.body;
+  try {
+    return JSON.parse(req.body);
+  } catch {
+    const error = new Error('Request body must be valid JSON.');
+    error.status = 400;
+    throw error;
+  }
+}
+
+const copySchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['title', 'coreFact', 'whyItMatters', 'processMatchReason'],
+  properties: {
+    title: { type: 'string' },
+    coreFact: { type: 'string' },
+    whyItMatters: { type: 'string' },
+    processMatchReason: { type: 'string' },
+  },
+};
+
+const schema = {
   type: 'object',
   additionalProperties: false,
   required: ['querySummary', 'candidates'],
   properties: {
-    querySummary: {
-      type: 'string',
-    },
+    querySummary: { type: 'string' },
     candidates: {
       type: 'array',
-      minItems: 1,
+      minItems: 3,
       maxItems: 8,
       items: {
         type: 'object',
         additionalProperties: false,
         required: [
-          'id',
-          'date',
-          'domain',
-          'tags',
-          'suggestedProcessId',
-          'processMatchConfidence',
-          'importance',
-          'novelty',
-          'evidenceStrength',
-          'independentSourceCount',
-          'thesisImpact',
-          'relationshipChange',
-          'stageChange',
-          'contradiction',
-          'content',
-          'sources',
+          'id', 'date', 'domain', 'tags',
+          'suggestedProcessId', 'processMatchConfidence',
+          'importance', 'novelty', 'evidenceStrength',
+          'independentSourceCount', 'thesisImpact',
+          'relationshipChange', 'stageChange',
+          'contradiction', 'content', 'sources',
         ],
         properties: {
           id: { type: 'string' },
@@ -52,66 +72,33 @@ const candidateSchema = {
           domain: { type: 'string' },
           tags: {
             type: 'array',
-            items: { type: 'string' },
             minItems: 2,
             maxItems: 10,
+            items: { type: 'string' },
           },
-          suggestedProcessId: {
-            type: ['string', 'null'],
-          },
+          suggestedProcessId: { type: ['string', 'null'] },
           processMatchConfidence: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
+            type: 'integer', minimum: 0, maximum: 100,
           },
-          importance: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
-          novelty: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
-          evidenceStrength: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
+          importance: { type: 'integer', minimum: 0, maximum: 100 },
+          novelty: { type: 'integer', minimum: 0, maximum: 100 },
+          evidenceStrength: { type: 'integer', minimum: 0, maximum: 100 },
           independentSourceCount: {
-            type: 'integer',
-            minimum: 1,
-            maximum: 10,
+            type: 'integer', minimum: 1, maximum: 10,
           },
-          thesisImpact: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
+          thesisImpact: { type: 'integer', minimum: 0, maximum: 100 },
           relationshipChange: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
+            type: 'integer', minimum: 0, maximum: 100,
           },
-          stageChange: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
-          contradiction: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 100,
-          },
+          stageChange: { type: 'integer', minimum: 0, maximum: 100 },
+          contradiction: { type: 'integer', minimum: 0, maximum: 100 },
           content: {
             type: 'object',
             additionalProperties: false,
-            required: ['en', 'zh', 'ja'],
+            required: ['en', 'zh'],
             properties: {
-              en: { $ref: '#/$defs/copy' },
-              zh: { $ref: '#/$defs/copy' },
-              ja: { $ref: '#/$defs/copy' },
+              en: copySchema,
+              zh: copySchema,
             },
           },
           sources: {
@@ -121,14 +108,15 @@ const candidateSchema = {
             items: {
               type: 'object',
               additionalProperties: false,
-              required: ['title', 'url', 'publisher', 'publishedAt', 'kind'],
+              required: [
+                'title', 'url', 'publisher',
+                'publishedAt', 'kind',
+              ],
               properties: {
                 title: { type: 'string' },
                 url: { type: 'string' },
                 publisher: { type: 'string' },
-                publishedAt: {
-                  type: ['string', 'null'],
-                },
+                publishedAt: { type: ['string', 'null'] },
                 kind: {
                   type: 'string',
                   enum: ['primary', 'reliable_media', 'context'],
@@ -140,186 +128,178 @@ const candidateSchema = {
       },
     },
   },
-  $defs: {
-    copy: {
-      type: 'object',
-      additionalProperties: false,
-      required: ['title', 'coreFact', 'whyItMatters', 'processMatchReason'],
-      properties: {
-        title: { type: 'string' },
-        coreFact: { type: 'string' },
-        whyItMatters: { type: 'string' },
-        processMatchReason: { type: 'string' },
-      },
-    },
-  },
 };
 
-function validateResearchDraft(value) {
-  if (!value || typeof value !== 'object') {
-    throw new Error('DeepSeek Research returned no JSON object.');
+function validate(result) {
+  if (!result?.querySummary?.trim()) {
+    throw new Error('Research is missing querySummary.');
   }
-
-  if (
-    typeof value.querySummary !== 'string' ||
-    !value.querySummary.trim()
-  ) {
-    throw new Error(
-      'DeepSeek Research JSON is missing querySummary.',
-    );
+  if (!Array.isArray(result.candidates) || result.candidates.length < 3) {
+    throw new Error('Research returned too few candidate signals.');
   }
-
-  if (
-    !Array.isArray(value.candidates) ||
-    value.candidates.length === 0
-  ) {
-    throw new Error(
-      'DeepSeek Research JSON contains no candidates.',
-    );
-  }
-
-  for (const [index, candidate] of value.candidates.entries()) {
-    if (!candidate || typeof candidate !== 'object') {
-      throw new Error(
-        `DeepSeek Research candidate ${index + 1} is invalid.`,
-      );
+  for (const [index, candidate] of result.candidates.entries()) {
+    if (!candidate?.content?.en || !candidate?.content?.zh) {
+      throw new Error(`Candidate ${index + 1} is missing EN/ZH copy.`);
     }
-
-    if (
-      !candidate.content?.en ||
-      !candidate.content?.zh ||
-      !candidate.content?.ja
-    ) {
-      throw new Error(
-        `DeepSeek Research candidate ${index + 1} is missing multilingual content.`,
-      );
-    }
-
-    if (
-      !Array.isArray(candidate.sources) ||
-      candidate.sources.length < 2
-    ) {
-      throw new Error(
-        `DeepSeek Research candidate ${index + 1} has fewer than two sources.`,
-      );
+    if (!Array.isArray(candidate.sources) || candidate.sources.length < 2) {
+      throw new Error(`Candidate ${index + 1} has fewer than two sources.`);
     }
   }
-
-  return value;
+  return result;
 }
 
-async function callDeepSeek({
-  date,
-  focus,
-  existingProcesses,
-  maxSignals,
-  scope,
-}) {
-  const config = deepseekConfig();
-  const scopeName = scopeLabel(scope);
-  const processContext = existingProcesses.length
-    ? JSON.stringify(existingProcesses)
-    : `No existing ${scopeName} Process catalogue was supplied.`;
+export default async function handler(req, res) {
+  cors(res);
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') {
+    return send(res, 405, { ok: false, error: 'Use POST.' });
+  }
 
-  const searchInstructions = [
-    'You are the evidence-gathering stage for Insight.',
-    `The active research scope is ${scopeName}.`,
-    'Scan broadly across policy, economics, markets, technology, society, institutions, security, energy, health, environment and other consequential domains inside the active scope.',
-    `Search public information published or materially updated near ${date}.`,
-    'Collect candidate changes, not finished Insights.',
-    'Prefer primary sources and high-quality independent reporting.',
-    'Record exact source title, publisher, URL, and publication date.',
-    'Do not invent facts or URLs.',
-    'This stage may return readable research notes; it does not need to return JSON.',
-  ].join(' ');
-
-  const task = [
-    `Research date: ${date}`,
-    `Research scope: ${scopeName}`,
-    `Research focus: ${focus}`,
-    `Reference-only ${scopeName} Process catalogue (do not use as a filter): ${processContext}`,
-    `Find evidence for up to ${maxSignals} distinct candidate signals.`,
-  ].join('\n');
-
-  const evidence = await deepseekResponsesText({
-    model: config.researchModel,
-    instructions: searchInstructions,
-    input: task,
-    webSearch: true,
-    maxOutputTokens: 12_000,
-  });
-
-  const formatInstructions = [
-    'You are the structuring stage for Insight Research.',
-    'Use only the supplied web-search dossier.',
-    'Use Signal First logic: identify important changes before considering Process matches.',
-    'Convert the dossier into candidate signals, not finished Insights.',
-    'Every candidate must describe a verifiable change rather than a general trend.',
-    'Never invent URLs, titles, publishers, publication dates, quotes, or numeric facts.',
-    'Use at least two genuinely independent sources per candidate.',
-    'Return English, Simplified Chinese, and Japanese copy.',
-    'Scores use 0-100.',
-    'All output is a draft requiring human approval.',
-  ].join(' ');
-
-  const structured = await deepseekResponsesJSON({
-    model: config.researchModel,
-    instructions: formatInstructions,
-    input: [
-      task,
-      '',
-      'WEB SEARCH DOSSIER:',
-      evidence.text,
-      '',
-      `Return 1 to ${maxSignals} distinct signals.`,
-    ].join('\n'),
-    schema: candidateSchema,
-    schemaName: 'insight_research_draft',
-    maxOutputTokens: 18_000,
-  });
-
-  return {
-    ...structured,
-    data: validateResearchDraft(structured.data),
-    usage: {
-      input_tokens:
-        (evidence.usage?.input_tokens || 0) +
-        (structured.usage?.input_tokens || 0),
-      output_tokens:
-        (evidence.usage?.output_tokens || 0) +
-        (structured.usage?.output_tokens || 0),
-      input_tokens_details: {
-        cached_tokens:
-          (evidence.usage?.input_tokens_details?.cached_tokens || 0) +
-          (structured.usage?.input_tokens_details?.cached_tokens || 0),
-      },
-    },
-  };
-}
-
-export default async function handler(req,res) {
-  setCorsHeaders(res);
-  if(req.method==='OPTIONS') return res.status(204).end();
-  if(req.method!=='POST') return sendJson(res,405,{ok:false,error:'Method not allowed. Use POST.'});
   try {
-    if(!process.env.DEEPSEEK_API_KEY) return sendJson(res,500,{ok:false,error:'DEEPSEEK_API_KEY is not configured.'});
-    if(!process.env.RESEARCH_API_TOKEN) return sendJson(res,500,{ok:false,error:'RESEARCH_API_TOKEN is not configured.'});
-    if(req.headers?.['x-research-token']!==process.env.RESEARCH_API_TOKEN) return sendJson(res,401,{ok:false,error:'Unauthorized.'});
-    const body=parseBody(req);
-    const date=typeof body.date==='string'&&body.date.trim()?body.date.trim():new Date().toISOString().slice(0,10);
-    const scope=normalizeScope(body.scope);
-    const focus=typeof body.focus==='string'&&body.focus.trim()?body.focus.trim():`Broad signal-first scan for consequential changes in ${scopeLabel(scope)} during the last 24 hours`;
-    const existingProcesses=Array.isArray(body.existingProcesses)&&body.existingProcesses.length?body.existingProcesses:processCatalogForScope(scope);
-    const requested=Number(body.maxSignals);
-    const maxSignals=Number.isFinite(requested)?Math.min(6,Math.max(1,Math.trunc(requested))):6;
-    const result=await callDeepSeek({date,focus,existingProcesses,maxSignals,scope});
-    const parsed=result.data;
-    const candidates=Array.isArray(parsed.candidates)?parsed.candidates.slice(0,maxSignals):[];
-    if(!candidates.length) throw new Error('DeepSeek returned no candidate signals.');
-    return sendJson(res,200,{
-      ok:true,id:`research-${scope}-${date}-${Date.now()}`,status:'draft',researchedAt:new Date().toISOString(),researchDate:date,scope,
-      provider:'deepseek',model:result.model,usage:compactUsage(result.usage),querySummary:parsed.querySummary,
-      candidates:candidates.map((candidate)=>({...candidate,suggestedProcessId:candidate.suggestedProcessId||undefined,sources:Array.isArray(candidate.sources)?candidate.sources.map((source)=>({...source,publishedAt:source.publishedAt||undefined})):[]})),
+    if (!process.env.DEEPSEEK_API_KEY) {
+      return send(res, 500, {
+        ok: false,
+        error: 'DEEPSEEK_API_KEY is not configured.',
+      });
+    }
+    if (!process.env.RESEARCH_API_TOKEN) {
+      return send(res, 500, {
+        ok: false,
+        error: 'RESEARCH_API_TOKEN is not configured.',
+      });
+    }
+    if (
+      req.headers?.['x-research-token'] !==
+      process.env.RESEARCH_API_TOKEN
+    ) {
+      return send(res, 401, { ok: false, error: 'Unauthorized.' });
+    }
+
+    const body = bodyOf(req);
+    const date =
+      typeof body.date === 'string' && body.date.trim()
+        ? body.date.trim()
+        : new Date().toISOString().slice(0, 10);
+
+    const focus =
+      typeof body.focus === 'string' && body.focus.trim()
+        ? body.focus.trim()
+        : 'Scan the world broadly for changes that could alter how an informed person understands an important system.';
+
+    const requested = Number(body.maxSignals);
+    const maxSignals = Number.isFinite(requested)
+      ? Math.min(8, Math.max(5, Math.trunc(requested)))
+      : 6;
+
+    const config = deepseekConfig();
+
+    // Important: processes are context only, never the search boundary.
+    const processReference = worldProcesses.map((process) => ({
+      id: process.id,
+      title: process.title,
+      thesis: process.thesis,
+      currentStage: process.currentStage,
+      domains: process.domains,
+      tags: process.tags,
+    }));
+
+    const evidence = await deepseekResponsesText({
+      model: config.researchModel,
+      instructions: [
+        'You are Insight Research.',
+        'SIGNAL FIRST. Observe the world before thinking about existing process categories.',
+        'Search broadly across geopolitics, macroeconomics, technology, AI, energy, industry, finance, demographics, climate, health, trade, security and institutions.',
+        `Prioritize information published or materially updated near ${date}.`,
+        'Look for changes, contradictions, threshold crossings, reversals, bottlenecks, new relationships and second-order effects.',
+        'Do not discard an important event merely because it does not match an existing World Process.',
+        'Prefer primary sources and strong independent reporting.',
+        'Collect evidence only. Do not write the final Insight.',
+        'Never invent facts, dates, quotes, titles or URLs.',
+      ].join(' '),
+      input: [
+        `Research date: ${date}`,
+        `Editorial focus: ${focus}`,
+        `Target candidate count: ${maxSignals}`,
+        '',
+        'Existing World Processes are REFERENCE ONLY, not search constraints:',
+        JSON.stringify(processReference),
+      ].join('\n'),
+      webSearch: true,
+      maxOutputTokens: 12_000,
     });
-  } catch(error) { console.error('Research API failed:',error); return sendJson(res,error?.status||500,{ok:false,error:error instanceof Error?error.message:'Unknown research error.'}); }
+
+    const structured = await deepseekResponsesJSON({
+      model: config.researchModel,
+      instructions: [
+        'Convert the supplied dossier into distinct candidate signals.',
+        'Return 5-8 candidates when evidence supports them.',
+        'Candidates should cover genuinely different changes rather than duplicates.',
+        'Each candidate needs at least two independent sources.',
+        'Process matching is optional. suggestedProcessId may be null.',
+        'If no existing process fits, say so rather than forcing a match.',
+        'Score importance, novelty, evidence strength and structural impact from 0-100.',
+        'Return only English and Simplified Chinese copy.',
+        'Use only facts and URLs contained in the dossier.',
+      ].join(' '),
+      input: [
+        `Research date: ${date}`,
+        '',
+        'WEB SEARCH DOSSIER:',
+        evidence.text,
+      ].join('\n'),
+      schema,
+      schemaName: 'insight_global_signal_pool',
+      maxOutputTokens: 18_000,
+    });
+
+    const data = validate(structured.data);
+    const candidates = data.candidates.slice(0, maxSignals);
+
+    return send(res, 200, {
+      ok: true,
+      id: `research-global-${date}-${Date.now()}`,
+      scope: 'global',
+      status: 'draft',
+      researchedAt: new Date().toISOString(),
+      researchDate: date,
+      provider: 'deepseek',
+      model: structured.model,
+      usage: compactUsage({
+        input_tokens:
+          Number(evidence.usage?.input_tokens || 0) +
+          Number(structured.usage?.input_tokens || 0),
+        output_tokens:
+          Number(evidence.usage?.output_tokens || 0) +
+          Number(structured.usage?.output_tokens || 0),
+        input_tokens_details: {
+          cached_tokens:
+            Number(evidence.usage?.input_tokens_details?.cached_tokens || 0) +
+            Number(structured.usage?.input_tokens_details?.cached_tokens || 0),
+        },
+      }),
+      querySummary: data.querySummary,
+      candidates: candidates.map((candidate) => ({
+        ...candidate,
+        suggestedProcessId: candidate.suggestedProcessId || undefined,
+        sources: candidate.sources.map((source, index) => ({
+          ...source,
+          id: source.id || `${candidate.id}-source-${index + 1}`,
+          publishedAt: source.publishedAt || undefined,
+        })),
+      })),
+    });
+  } catch (error) {
+    console.error('Build014 Research failed:', error);
+    return send(
+      res,
+      Number.isInteger(error?.status) ? error.status : 500,
+      {
+        ok: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown research error.',
+      },
+    );
+  }
 }

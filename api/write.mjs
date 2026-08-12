@@ -1,14 +1,304 @@
-import { normalizeScope, processCatalogForScope, scopeLabel } from '../lib/processScopes.mjs';
 
+import worldProcesses from '../data/world-process-catalog.json' with { type: 'json' };
 import { buildWriterDraft } from '../lib/writer.mjs';
-import { compactUsage, deepseekConfig, deepseekToolJSON } from '../lib/deepseekClient.mjs';
-import { baseStageSchema, compactCandidate, compactProcess, mergeUsage, translationStageSchema, validatePage } from '../lib/stagedWriter.mjs';
-const cors=res=>{res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS');res.setHeader('Access-Control-Allow-Headers','Content-Type, x-research-token')};
-const send=(res,s,v)=>(cors(res),res.status(s).json(v));
-const body=req=>typeof req.body==='object'?(req.body||{}):JSON.parse(req.body||'{}');
-function auth(req){if(!process.env.DEEPSEEK_API_KEY)throw Object.assign(new Error('DEEPSEEK_API_KEY is not configured.'),{status:500});if(!process.env.RESEARCH_API_TOKEN)throw Object.assign(new Error('RESEARCH_API_TOKEN is not configured.'),{status:500});if(req.headers?.['x-research-token']!==process.env.RESEARCH_API_TOKEN)throw Object.assign(new Error('Unauthorized.'),{status:401})}
-function context(b){const researchDraft=b.researchDraft||b.draft;if(!researchDraft?.id||!Array.isArray(researchDraft.candidates))throw Object.assign(new Error('researchDraft with candidates is required.'),{status:400});const candidate=researchDraft.candidates.find(x=>x.id===b.candidateId)||researchDraft.candidates[0];if(!candidate)throw Object.assign(new Error('Candidate was not found.'),{status:400});if(!candidate.analysis)throw Object.assign(new Error('Candidate must be analyzed before writing.'),{status:422});const scope=normalizeScope(b.scope||researchDraft.scope);const processId=candidate.analysis.matchedProcessId||candidate.suggestedProcessId;const catalog=processCatalogForScope(scope);return{researchDraft:{...researchDraft,scope},candidate,scope,scopeName:scopeLabel(scope),matchedProcess:catalog.find(x=>x.id===processId)}}
-async function base(c){const cfg=deepseekConfig(),ids=(c.candidate.sources||[]).map(x=>x.id).filter(Boolean);const r=await deepseekToolJSON({model:cfg.writeModel,system:['You are the English lead writer for Insight.',`The active scope is ${c.scopeName}.`,c.scope==='japan'?'Write the Insight from the perspective of Japan-specific structural change. Do not force global significance.':c.scope==='china'?'Write the Insight from the perspective of China-specific structural change. Do not force global significance.':c.scope==='us'?'Write the Insight from the perspective of US-specific structural change. Do not force global significance.':'Write at global system level.','Write only the English master edition and English editorial metadata.','Create a concise six-page Insight using only supplied evidence.','Page 4 must contain meaningful title, before, shift, now, and conclusion.','Never use placeholders.','Preserve only supplied source IDs and never invent facts, URLs, dates, numbers, or quotes.','Return the result through the required function.'].join(' '),user:JSON.stringify({researchDraftId:c.researchDraft.id,researchDate:c.researchDraft.researchDate,candidate:compactCandidate(c.candidate),matchedProcess:compactProcess(c.matchedProcess),allowedSourceIds:ids}),toolName:'submit_english_master_draft',schema:baseStageSchema,reasoningEffort:'high',maxTokens:7500,timeoutMs:95000});validatePage(r.data.en,'en');return{ok:true,stage:'base',baseDraft:r.data,model:r.model,usage:compactUsage(r.usage)}}
-async function translate(c,lang,b){if(!['zh','ja'].includes(lang))throw Object.assign(new Error('Translation language must be zh or ja.'),{status:400});if(!b?.en)throw Object.assign(new Error('English baseDraft is required.'),{status:400});const cfg=deepseekConfig(),name=lang==='zh'?'natural Simplified Chinese':'natural Japanese';const r=await deepseekToolJSON({model:cfg.researchModel,system:[`You are the ${name} editor for Insight.`,'Translate and locally edit the supplied English master.','Preserve meaning, structure, source IDs, evidence confidence, and item counts.','Do not add facts, URLs, dates, numbers, publisher names, or citations.','Page 4 must remain complete. Never use placeholders.','Return only the required localized result.'].join(' '),user:JSON.stringify({targetLanguage:lang,englishMaster:{page:b.en,dailyState:b.dailyStateEn,processContent:b.processContentEn,nextQuestion:b.nextQuestionEn,observeNext:b.observeNextEn},sourceIds:(c.candidate.sources||[]).map(x=>x.id).filter(Boolean)}),toolName:`submit_${lang}_localized_draft`,schema:translationStageSchema,reasoningEffort:'medium',maxTokens:6500,timeoutMs:95000});validatePage(r.data.page,lang);return{ok:true,stage:lang,language:lang,localizedDraft:r.data,model:r.model,usage:compactUsage(r.usage)}}
-function finalize(c,b,z,j,u,m){validatePage(b.en,'en');validatePage(z.page,'zh');validatePage(j.page,'ja');const g={insightId:b.insightId,slug:b.slug,parentInsightId:b.parentInsightId,previousInsightId:b.previousInsightId,en:b.en,zh:z.page,ja:j.page,dailyState:{en:b.dailyStateEn,zh:z.dailyState,ja:j.dailyState},processUpdate:{stage:b.processStage,content:{en:b.processContentEn,zh:z.processContent,ja:j.processContent},nextQuestion:{en:b.nextQuestionEn,zh:z.nextQuestion,ja:j.nextQuestion},observeNext:{en:b.observeNextEn,zh:z.observeNext,ja:j.observeNext}}};const usage=mergeUsage(u?.base,u?.zh,u?.ja);const writerDraft={...buildWriterDraft({researchDraft:c.researchDraft,candidate:c.candidate,model:[m?.base,m?.zh,m?.ja].filter(Boolean).join(' + ')||'deepseek-staged-writer',generated:g,process:c.matchedProcess}),provider:'deepseek',pipeline:'staged-writer-v1',usage:compactUsage(usage)};return{ok:true,stage:'finalize',writerDraft,editorialGate:{publishThresholdMet:Boolean(c.candidate.analysis.publishThresholdMet),dailyState:c.candidate.analysis.dailyState,requiresManualOverride:!c.candidate.analysis.publishThresholdMet,warnings:c.candidate.analysis.warnings||[]}}}
-export default async function handler(req,res){cors(res);if(req.method==='OPTIONS')return res.status(204).end();if(req.method!=='POST')return send(res,405,{ok:false,error:'Method not allowed. Use POST.'});try{auth(req);const b=body(req),s=b.stage||'base',c=context(b);if(s==='base')return send(res,200,await base(c));if(s==='zh'||s==='ja')return send(res,200,await translate(c,s,b.baseDraft));if(s==='finalize')return send(res,200,finalize(c,b.baseDraft,b.zhDraft,b.jaDraft,b.stageUsage,b.stageModels));return send(res,400,{ok:false,error:`Unknown write stage: ${s}`})}catch(e){console.error('Staged Writer API failed:',e);return send(res,Number.isInteger(e?.status)?e.status:500,{ok:false,error:e instanceof Error?e.message:'Unknown staged Writer error.',missingFields:e?.missingFields})}}
+import {
+  compactUsage,
+  deepseekConfig,
+  deepseekToolJSON,
+} from '../lib/deepseekClient.mjs';
+import {
+  baseStageSchema,
+  compactCandidate,
+  compactProcess,
+  mergeUsage,
+  translationStageSchema,
+  validatePage,
+} from '../lib/stagedWriter.mjs';
+
+function cors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, x-research-token',
+  );
+}
+
+function send(res, status, payload) {
+  cors(res);
+  return res.status(status).json(payload);
+}
+
+function authorize(req) {
+  if (
+    req.headers?.['x-research-token'] !==
+    process.env.RESEARCH_API_TOKEN
+  ) {
+    const error = new Error('Unauthorized.');
+    error.status = 401;
+    throw error;
+  }
+}
+
+function context(raw) {
+  const researchDraft = raw.researchDraft || raw.draft;
+  if (!researchDraft?.id || !Array.isArray(researchDraft.candidates)) {
+    const error = new Error('researchDraft with candidates is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  // Analyze puts the single selected candidate first.
+  const candidate =
+    researchDraft.candidates.find(
+      (item) => item.id === raw.candidateId,
+    ) || researchDraft.candidates[0];
+
+  if (!candidate?.analysis) {
+    const error = new Error(
+      'Selected candidate must be analyzed before writing.',
+    );
+    error.status = 422;
+    throw error;
+  }
+
+  const processId =
+    candidate.analysis.matchedProcessId ||
+    candidate.suggestedProcessId;
+
+  const matchedProcess =
+    worldProcesses.find((process) => process.id === processId);
+
+  return {
+    researchDraft: { ...researchDraft, scope: 'global' },
+    candidate,
+    matchedProcess,
+  };
+}
+
+async function englishStage(ctx) {
+  const config = deepseekConfig();
+  const sourceIds = (ctx.candidate.sources || [])
+    .map((source) => source.id)
+    .filter(Boolean);
+
+  const result = await deepseekToolJSON({
+    model: config.writeModel,
+    system: [
+      'You are the English lead writer for Insight.',
+      'Write one concise six-page Global Insight from the selected Signal.',
+      'The classification may be an existing process update, new process candidate, or standalone important Insight.',
+      'Do not force a World Process link if the Analyst did not provide one.',
+      'Use only supplied evidence.',
+      'Never invent facts, dates, numbers, quotes, URLs or source IDs.',
+      'Page 4 must contain meaningful before, shift, now and conclusion.',
+      'Return the complete structured result through the required function.',
+    ].join(' '),
+    user: JSON.stringify({
+      researchDate: ctx.researchDraft.researchDate,
+      candidate: compactCandidate(ctx.candidate),
+      matchedProcess: compactProcess(ctx.matchedProcess),
+      allowedSourceIds: sourceIds,
+    }),
+    toolName: 'submit_global_english_master',
+    schema: baseStageSchema,
+    reasoningEffort: 'high',
+    maxTokens: 7_500,
+    timeoutMs: 95_000,
+  });
+
+  validatePage(result.data.en, 'en');
+
+  return {
+    ok: true,
+    stage: 'base',
+    baseDraft: result.data,
+    model: result.model,
+    usage: compactUsage(result.usage),
+  };
+}
+
+async function chineseStage(ctx, baseDraft) {
+  if (!baseDraft?.en) {
+    const error = new Error('English baseDraft is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const config = deepseekConfig();
+
+  const result = await deepseekToolJSON({
+    model: config.researchModel,
+    system: [
+      'You are the Simplified Chinese editor for Insight.',
+      'Translate and locally edit the supplied English master into natural concise Simplified Chinese.',
+      'Preserve structure, evidence confidence, source IDs and item counts.',
+      'Do not add facts, dates, numbers, URLs or citations.',
+      'Do not translate IDs.',
+      'Page 4 must remain complete.',
+      'Return only the required structured result.',
+    ].join(' '),
+    user: JSON.stringify({
+      englishMaster: {
+        page: baseDraft.en,
+        dailyState: baseDraft.dailyStateEn,
+        processContent: baseDraft.processContentEn,
+        nextQuestion: baseDraft.nextQuestionEn,
+        observeNext: baseDraft.observeNextEn,
+      },
+      sourceIds: (ctx.candidate.sources || [])
+        .map((source) => source.id)
+        .filter(Boolean),
+    }),
+    toolName: 'submit_global_chinese_draft',
+    schema: translationStageSchema,
+    reasoningEffort: 'medium',
+    maxTokens: 6_500,
+    timeoutMs: 95_000,
+  });
+
+  validatePage(result.data.page, 'zh');
+
+  return {
+    ok: true,
+    stage: 'zh',
+    language: 'zh',
+    localizedDraft: result.data,
+    model: result.model,
+    usage: compactUsage(result.usage),
+  };
+}
+
+function finalize(ctx, baseDraft, zhDraft, stageUsage, stageModels) {
+  validatePage(baseDraft.en, 'en');
+  validatePage(zhDraft.page, 'zh');
+
+  const processUpdate = ctx.matchedProcess
+    ? {
+        stage: baseDraft.processStage,
+        content: {
+          en: baseDraft.processContentEn,
+          zh: zhDraft.processContent,
+        },
+        nextQuestion: {
+          en: baseDraft.nextQuestionEn,
+          zh: zhDraft.nextQuestion,
+        },
+        observeNext: {
+          en: baseDraft.observeNextEn,
+          zh: zhDraft.observeNext,
+        },
+      }
+    : undefined;
+
+  const generated = {
+    insightId: baseDraft.insightId,
+    slug: baseDraft.slug,
+    parentInsightId: baseDraft.parentInsightId,
+    previousInsightId: baseDraft.previousInsightId,
+    en: baseDraft.en,
+    zh: zhDraft.page,
+    dailyState: {
+      en: baseDraft.dailyStateEn,
+      zh: zhDraft.dailyState,
+    },
+    processUpdate,
+  };
+
+  const usage = mergeUsage(
+    stageUsage?.base,
+    stageUsage?.zh,
+  );
+
+  const writerDraft = {
+    ...buildWriterDraft({
+      researchDraft: ctx.researchDraft,
+      candidate: ctx.candidate,
+      model:
+        [stageModels?.base, stageModels?.zh]
+          .filter(Boolean)
+          .join(' + ') || 'deepseek-build014',
+      generated,
+      process: ctx.matchedProcess,
+    }),
+    provider: 'deepseek',
+    pipeline: 'build014-one-world-v1',
+    usage: compactUsage(usage),
+  };
+
+  return {
+    ok: true,
+    stage: 'finalize',
+    writerDraft,
+    editorialGate: {
+      publishThresholdMet: Boolean(
+        ctx.candidate.analysis.publishThresholdMet,
+      ),
+      dailyState: ctx.candidate.analysis.dailyState,
+      decisionType: ctx.candidate.analysis.decisionType,
+      warnings: ctx.candidate.analysis.warnings || [],
+    },
+  };
+}
+
+export default async function handler(req, res) {
+  cors(res);
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') {
+    return send(res, 405, { ok: false, error: 'Use POST.' });
+  }
+
+  try {
+    authorize(req);
+    const raw =
+      typeof req.body === 'object'
+        ? req.body
+        : JSON.parse(req.body || '{}');
+
+    const stage = raw.stage || 'base';
+    const ctx = context(raw);
+
+    if (stage === 'base') {
+      return send(res, 200, await englishStage(ctx));
+    }
+    if (stage === 'zh') {
+      return send(
+        res,
+        200,
+        await chineseStage(ctx, raw.baseDraft),
+      );
+    }
+    if (stage === 'finalize') {
+      return send(
+        res,
+        200,
+        finalize(
+          ctx,
+          raw.baseDraft,
+          raw.zhDraft,
+          raw.stageUsage,
+          raw.stageModels,
+        ),
+      );
+    }
+
+    return send(res, 400, {
+      ok: false,
+      error: `Unknown write stage: ${stage}`,
+    });
+  } catch (error) {
+    console.error('Build014 Write failed:', error);
+    return send(
+      res,
+      Number.isInteger(error?.status) ? error.status : 500,
+      {
+        ok: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown write error.',
+        missingFields: error?.missingFields,
+      },
+    );
+  }
+}

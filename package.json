@@ -1,13 +1,13 @@
 {
-  "name": "insight-build013-zeta-vercel-safe-durable-backend",
-  "version": "1.0.0-research-reset",
+  "name": "insight-build014-one-world-backend",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "merge:draft": "node scripts/merge-research-draft.mjs",
     "merge:writer": "node scripts/merge-writer-draft.mjs",
-    "check": "node --check api/research.mjs && node --check api/analyze.mjs && node --check api/write.mjs && node --check api/auto-start.mjs && node --check api/auto-status.mjs && node --check api/auto-resume.mjs"
+    "check": "node --check api/research.mjs && node --check api/analyze.mjs && node --check api/write.mjs && node --check api/publish.mjs"
   },
   "engines": {
     "node": "24.x"

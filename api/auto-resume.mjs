@@ -1,8 +1,10 @@
 
 import {
-  readAutomationJob,
-  saveAutomationJob,
+  acquireAutomationLease,
   publicAutomationJob,
+  readAutomationJob,
+  releaseAutomationLease,
+  saveAutomationJob,
 } from '../lib/automationJobStore.mjs';
 import {
   executeOneStage,
@@ -17,28 +19,87 @@ function cors(res) {
     'Content-Type, x-research-token, x-publish-token',
   );
 }
+
 function send(res, status, payload) {
   cors(res);
   return res.status(status).json(payload);
 }
+
 export default async function handler(req, res) {
   cors(res);
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return send(res, 405, { ok: false, error: 'Use POST.' });
 
-  if (
-    req.headers?.['x-research-token'] !== process.env.RESEARCH_API_TOKEN ||
-    req.headers?.['x-publish-token'] !== process.env.PUBLISH_API_TOKEN
-  ) {
-    return send(res, 401, { ok: false, error: 'Unauthorized.' });
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
   }
 
-  try {
-    const body = typeof req.body === 'object'
+  if (req.method !== 'POST') {
+    return send(res, 405, {
+      ok: false,
+      error: 'Use POST.',
+    });
+  }
+
+  if (
+    req.headers?.['x-research-token'] !==
+      process.env.RESEARCH_API_TOKEN ||
+    req.headers?.['x-publish-token'] !==
+      process.env.PUBLISH_API_TOKEN
+  ) {
+    return send(res, 401, {
+      ok: false,
+      error: 'Unauthorized.',
+    });
+  }
+
+  const body =
+    typeof req.body === 'object'
       ? req.body
       : JSON.parse(req.body || '{}');
-    const job = await readAutomationJob(body.jobId);
-    if (!job) return send(res, 404, { ok: false, error: 'Job not found.' });
+
+  const jobId = body.jobId;
+
+  if (!jobId) {
+    return send(res, 400, {
+      ok: false,
+      error: 'jobId is required.',
+    });
+  }
+
+  const owner =
+    `resume-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 10)}`;
+
+  let leaseAcquired = false;
+
+  try {
+    const lease = await acquireAutomationLease(
+      jobId,
+      owner,
+    );
+
+    if (!lease.acquired) {
+      const current = await readAutomationJob(jobId);
+
+      return send(res, 202, {
+        ok: true,
+        job: publicAutomationJob(current),
+        busy: true,
+        message:
+          '当前断点仍在执行，不需要重复启动。',
+        driver: 'checkpoint-lease-v2',
+      });
+    }
+
+    leaseAcquired = true;
+    const job = lease.job;
+
+    if (!job) {
+      return send(res, 404, {
+        ok: false,
+        error: 'Job not found.',
+      });
+    }
 
     if (
       job.status === 'completed' &&
@@ -46,15 +107,14 @@ export default async function handler(req, res) {
     ) {
       return send(res, 409, {
         ok: false,
-        error: 'This automation job is already complete.',
+        error:
+          'This automation job is already complete.',
       });
     }
 
-    // Prefer an explicit failed checkpoint. If none exists, re-awaken the
-    // job exactly where its durable currentScope/currentStage say it stopped.
-    const failed = Object.entries(job.scopes || {}).find(
-      ([, state]) => state.status === 'error',
-    );
+    const failed = Object.entries(
+      job.scopes || {},
+    ).find(([, state]) => state.status === 'error');
 
     let scope = job.currentScope || 'global';
     let stage = job.currentStage || 'research';
@@ -62,7 +122,12 @@ export default async function handler(req, res) {
     if (failed) {
       scope = failed[0];
       const state = failed[1];
-      stage = state.failedStage || state.stage || 'research';
+
+      stage =
+        state.failedStage ||
+        state.stage ||
+        'research';
+
       state.status = 'queued';
       state.stage = stage;
       state.message = `从 ${stage} 断点继续`;
@@ -72,6 +137,7 @@ export default async function handler(req, res) {
       };
     } else {
       const state = job.scopes?.[scope];
+
       if (state) {
         state.status = 'queued';
         state.stage = stage;
@@ -83,7 +149,9 @@ export default async function handler(req, res) {
     job.currentScope = scope;
     job.currentStage = stage;
     job.completedAt = undefined;
-    job.message = `${scope.toUpperCase()} 从 ${stage} 断点继续`;
+    job.message =
+      `${scope.toUpperCase()} 从 ${stage} 断点继续`;
+
     await saveAutomationJob(job);
 
     try {
@@ -92,17 +160,38 @@ export default async function handler(req, res) {
       await recordStageFailure(job, stageError);
     }
 
-    const refreshed = await readAutomationJob(job.id);
+    const refreshed =
+      await readAutomationJob(job.id);
 
     return send(res, 202, {
       ok: true,
-      job: publicAutomationJob(refreshed || job),
-      driver: 'checkpoint-heartbeat-v1',
+      job: publicAutomationJob(
+        refreshed || job,
+      ),
+      busy: false,
+      driver: 'checkpoint-lease-v2',
     });
   } catch (error) {
     return send(res, 500, {
       ok: false,
-      error: error instanceof Error ? error.message : 'Resume failed.',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Resume failed.',
     });
+  } finally {
+    if (leaseAcquired) {
+      try {
+        await releaseAutomationLease(
+          jobId,
+          owner,
+        );
+      } catch (releaseError) {
+        console.error(
+          'Automation lease release failed:',
+          releaseError,
+        );
+      }
+    }
   }
 }

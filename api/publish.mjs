@@ -240,23 +240,31 @@ export default async function handler(req, res) {
         : `Reject Writer Draft ${writerDraft.id}`;
 
     let commit;
-    try {
-      commit = await writeRemoteContent({
-        config: current.config,
-        sha: current.sha,
-        content: nextContent,
-        message,
-      });
-    } catch (error) {
-      return json(res, 502, {
-        ok: false,
-        stage: 'main-write',
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Main content write failed.',
-        backup,
-      });
+    let committedContent = nextContent;
+    let writeBase = current;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        commit = await writeRemoteContent({ config: writeBase.config, sha: writeBase.sha, content: committedContent, message });
+        break;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Main content write failed.';
+        const isConflict = errorMessage.includes('status=409') || /is at .* but expected/i.test(errorMessage);
+        if (!isConflict || attempt === 3) {
+          return json(res, 502, { ok: false, stage: 'main-write', error: errorMessage, backup, conflictAttempts: attempt });
+        }
+        writeBase = await readRemoteContent();
+        const concurrent = findProcessedDraft(writeBase.content, writerDraft, action);
+        if (concurrent?.alreadyProcessed) {
+          return json(res, 200, { ok: true, action, reviewedAt: concurrent.reviewedAt, alreadyProcessed: true, conflictRecovered: true, contentVersion: writeBase.content.contentVersion, insightId: action === 'approve' ? writerDraft.insight?.id : undefined, content: writeBase.content, safety: { backupPath: backup.path, backupCommitSha: backup.commitSha, validatedAt: new Date().toISOString() } });
+        }
+        const remerged = action === 'approve'
+          ? mergeApprovedDraft(writeBase.content, reviewedDraft, reviewedAt)
+          : mergeRejectedDraft(writeBase.content, reviewedDraft, reviewedAt);
+        const refounded = action === 'approve' ? applyWorldProcessFoundation(remerged, reviewedDraft, reviewedAt) : remerged;
+        committedContent = repairInsightProcessLinks(refounded);
+        const retryValidation = validateContentBundle(committedContent);
+        if (!retryValidation.ok) return json(res, 409, { ok: false, error: 'Content validation failed after conflict recovery merge.', validation: retryValidation, backup });
+      }
     }
 
     return json(res, 200, {
@@ -265,7 +273,7 @@ export default async function handler(req, res) {
       reviewedAt,
       alreadyProcessed: false,
       originalPublishThresholdMet: thresholdMet,
-      contentVersion: nextContent.contentVersion,
+      contentVersion: committedContent.contentVersion,
       insightId:
         action === 'approve'
           ? writerDraft.insight?.id
@@ -277,7 +285,8 @@ export default async function handler(req, res) {
             writerDraft.insight?.processId
           : undefined,
       commit,
-      content: nextContent,
+      content: committedContent,
+      conflictRecovered: writeBase.sha !== current.sha,
       safety: {
         backupPath: backup.path,
         backupCommitSha: backup.commitSha,

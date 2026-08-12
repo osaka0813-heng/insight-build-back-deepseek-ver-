@@ -2,7 +2,7 @@ import { normalizeScope, processCatalogForScope, scopeLabel } from '../lib/proce
 import { analyzeDraft } from '../lib/analyst.mjs';
 import { compactUsage, deepseekConfig, deepseekToolJSON } from '../lib/deepseekClient.mjs';
 
-const analysisSchema = {"type": "object", "additionalProperties": false, "required": ["analyses"], "properties": {"analyses": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["candidateId", "matchedProcessId", "processMatchConfidence", "impact", "dailyState", "materialChangeScore", "publishThresholdMet", "rationale", "warnings"], "properties": {"candidateId": {"type": "string"}, "matchedProcessId": {"type": ["string", "null"]}, "processMatchConfidence": {"type": "integer", "minimum": 0, "maximum": 100}, "impact": {"type": "string", "enum": ["supports", "updates", "challenges", "no_material_change"]}, "dailyState": {"type": "string", "enum": ["publish_new", "update_living", "no_new_global_insight"]}, "materialChangeScore": {"type": "integer", "minimum": 0, "maximum": 100}, "publishThresholdMet": {"type": "boolean"}, "rationale": {"type": "string"}, "warnings": {"type": "array", "items": {"type": "string"}, "maxItems": 8}}}}}};
+const analysisSchema = {"type":"object","additionalProperties":false,"required":["analyses"],"properties":{"analyses":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["candidateId","matchedProcessId","processMatchConfidence","impact","classification","materialChangeScore","publicationScore","publishThresholdMet","rationale","warnings"],"properties":{"candidateId":{"type":"string"},"matchedProcessId":{"type":["string","null"]},"processMatchConfidence":{"type":"integer","minimum":0,"maximum":100},"impact":{"type":"string","enum":["supports","updates","challenges","no_material_change"]},"classification":{"type":"string","enum":["existing_process_update","new_process_candidate","standalone_important_insight","noise"]},"materialChangeScore":{"type":"integer","minimum":0,"maximum":100},"publicationScore":{"type":"integer","minimum":0,"maximum":100},"publishThresholdMet":{"type":"boolean"},"rationale":{"type":"string"},"warnings":{"type":"array","items":{"type":"string"},"maxItems":8}}}}}};
 function setCors(res) { res.setHeader('Access-Control-Allow-Origin','*'); res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS'); res.setHeader('Access-Control-Allow-Headers','Content-Type, x-research-token'); }
 function json(res,status,value) { setCors(res); return res.status(status).json(value); }
 function parseBody(req) { if(!req.body) return {}; if(typeof req.body==='object') return req.body; try { return JSON.parse(req.body); } catch { const e=new Error('Request body must be valid JSON.'); e.status=400; throw e; } }
@@ -21,8 +21,8 @@ export default async function handler(req,res) {
   const normalized=analyzeDraft(draft,processes);
   const config=deepseekConfig();
   const system=[
-   `You are the AI Analyst for Insight. Evaluate candidate signals as ${scopeName} Process changes.`,
-   `Use only the supplied candidates, sources, and ${scopeName} Process catalogue.`,
+   `You are the AI Analyst for Insight. Evaluate what each signal changes in the user's understanding of ${scopeName}.`,
+   `Use only the supplied candidates and sources. The ${scopeName} Process catalogue is a reference map, never a publication gate.`,
    scope==='japan'
      ? 'Judge significance from the perspective of Japan. A globally important event is not enough unless it changes a Japan-specific system.'
      : scope==='china'
@@ -31,9 +31,9 @@ export default async function handler(req,res) {
          ? 'Judge significance from the perspective of the United States. A globally important event is not enough unless it changes a US-specific system.'
          : 'Judge significance at the global system level.',
    'Do not invent facts. Be conservative when sources are weak or not independent.',
-   'publish_new requires high novelty and a genuinely new system relationship.',
-   'update_living requires a material update to an existing process.',
-   'Otherwise choose no_new_global_insight. This enum is retained for schema compatibility; interpret it as no new Insight within the active scope. Return the required tool JSON.'
+   'Classify every candidate as exactly one of: existing_process_update, new_process_candidate, standalone_important_insight, noise.',
+   'A strong signal that matches no Process may be a new_process_candidate or standalone_important_insight. Never reject it merely because the catalogue has no match.',
+   'Use noise only for weak evidence, repetition, routine follow-through, or low consequence. Score publication value across importance, evidence, novelty and consequence. Return the required tool JSON.'
   ].join(' ');
   const user=JSON.stringify({researchDate:draft.researchDate,scope,candidates:normalized.candidates,processes:processes.map(p=>({id:p.id,title:p.title,thesis:p.thesis,currentStage:p.currentStage,domains:p.domains,tags:p.tags}))});
   const result=await deepseekToolJSON({model:config.analyzeModel,system,user,toolName:'submit_insight_analysis',schema:analysisSchema,reasoningEffort:'max',maxTokens:18000});
@@ -41,8 +41,13 @@ export default async function handler(req,res) {
   const candidates=normalized.candidates.map(candidate=>{
     const ai=byId.get(candidate.id); if(!ai) return candidate;
     const matched=ai.matchedProcessId&&processes.some(p=>p.id===ai.matchedProcessId)?ai.matchedProcessId:undefined;
-    return {...candidate,suggestedProcessId:matched||candidate.suggestedProcessId,processMatchConfidence:ai.processMatchConfidence,analysis:{...candidate.analysis,...ai,matchedProcessId:matched,warnings:[...(candidate.analysis?.warnings||[]),...(ai.warnings||[])]}};
+    const classification=ai.classification;
+    const dailyState=classification==='existing_process_update'?'update_living':classification==='noise'?'no_new_global_insight':'publish_new';
+    return {...candidate,suggestedProcessId:matched||candidate.suggestedProcessId,processMatchConfidence:ai.processMatchConfidence,analysis:{...candidate.analysis,...ai,classification,analyzeType:classification,dailyState,matchedProcessId:matched,warnings:[...(candidate.analysis?.warnings||[]),...(ai.warnings||[])]}};
   });
-  return json(res,200,{ok:true,analyzedAt:new Date().toISOString(),provider:'deepseek',model:result.model,usage:compactUsage(result.usage),draft:{...normalized,scope,model:result.model,analysisProvider:'deepseek',candidates}});
+  const publishable=candidates.filter(c=>c.analysis?.classification!=='noise').sort((a,b)=>(b.analysis?.publicationScore||0)-(a.analysis?.publicationScore||0));
+  const selectedCandidateId=publishable[0]?.id;
+  const ranked=candidates.map(c=>({...c,selectedForPublication:c.id===selectedCandidateId}));
+  return json(res,200,{ok:true,analyzedAt:new Date().toISOString(),provider:'deepseek',model:result.model,usage:compactUsage(result.usage),candidateCount:ranked.length,selectedCandidateId,selectedAnalyzeType:publishable[0]?.analysis?.classification,draft:{...normalized,scope,model:result.model,analysisProvider:'deepseek',candidateCount:ranked.length,selectedCandidateId,selectedAnalyzeType:publishable[0]?.analysis?.classification,selectionReason:selectedCandidateId?'Highest publication score among the three publishable classes.':'All candidates were Noise.',candidates:ranked}});
  } catch(error) { console.error('Analyze API failed:',error); return json(res,error?.status||500,{ok:false,error:error instanceof Error?error.message:'Unknown analysis error.'}); }
 }

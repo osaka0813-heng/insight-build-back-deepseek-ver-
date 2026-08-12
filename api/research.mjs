@@ -224,13 +224,7 @@ async function callDeepSeek({
   const searchInstructions = [
     'You are the evidence-gathering stage for Insight.',
     `The active research scope is ${scopeName}.`,
-    scope === 'japan'
-      ? 'Prioritize changes that alter Japan-specific systems, institutions, markets, policy regimes, industrial capacity, demographics, energy, security or capital flows. Global events matter only when they materially change a Japan process.'
-      : scope === 'china'
-        ? 'Prioritize changes that alter China-specific macro, property, local-finance, industrial, technology, household-demand, trade or capital systems. Global events matter only when they materially change a China process.'
-        : scope === 'us'
-          ? 'Prioritize changes that alter United States fiscal, monetary, labor, industrial, AI-infrastructure, energy, trade or capital systems. Global events matter only when they materially change a US process.'
-          : 'Prioritize world-process-level structural changes with cross-border or system-wide significance.',
+    'Scan broadly across policy, economics, markets, technology, society, institutions, security, energy, health, environment and other consequential domains inside the active scope.',
     `Search public information published or materially updated near ${date}.`,
     'Collect candidate changes, not finished Insights.',
     'Prefer primary sources and high-quality independent reporting.',
@@ -243,7 +237,7 @@ async function callDeepSeek({
     `Research date: ${date}`,
     `Research scope: ${scopeName}`,
     `Research focus: ${focus}`,
-    `Existing ${scopeName} Processes: ${processContext}`,
+    `Reference-only ${scopeName} Process catalogue (do not use as a filter): ${processContext}`,
     `Find evidence for up to ${maxSignals} distinct candidate signals.`,
   ].join('\n');
 
@@ -258,6 +252,7 @@ async function callDeepSeek({
   const formatInstructions = [
     'You are the structuring stage for Insight Research.',
     'Use only the supplied web-search dossier.',
+    'Use Signal First logic: identify important changes before considering Process matches.',
     'Convert the dossier into candidate signals, not finished Insights.',
     'Every candidate must describe a verifiable change rather than a general trend.',
     'Never invent URLs, titles, publishers, publication dates, quotes, or numeric facts.',
@@ -313,10 +308,10 @@ export default async function handler(req,res) {
     const body=parseBody(req);
     const date=typeof body.date==='string'&&body.date.trim()?body.date.trim():new Date().toISOString().slice(0,10);
     const scope=normalizeScope(body.scope);
-    const focus=typeof body.focus==='string'&&body.focus.trim()?body.focus.trim():(scope==='japan'?'Japan-process-level changes in monetary policy, wages, demographics, industry, energy, security and capital':scope==='china'?'China-process-level changes in property, local finance, manufacturing, technology, domestic demand, trade and capital':scope==='us'?'US-process-level changes in fiscal policy, rates, labor, industrial capacity, AI infrastructure, energy and capital':'world-process-level changes in technology, energy, macroeconomics, geopolitics, and capital');
+    const focus=typeof body.focus==='string'&&body.focus.trim()?body.focus.trim():`Broad signal-first scan for consequential changes in ${scopeLabel(scope)} during the last 24 hours`;
     const existingProcesses=Array.isArray(body.existingProcesses)&&body.existingProcesses.length?body.existingProcesses:processCatalogForScope(scope);
     const requested=Number(body.maxSignals);
-    const maxSignals=Number.isFinite(requested)?Math.min(6,Math.max(1,Math.trunc(requested))):3;
+    const maxSignals=Number.isFinite(requested)?Math.min(6,Math.max(1,Math.trunc(requested))):6;
     const result=await callDeepSeek({date,focus,existingProcesses,maxSignals,scope});
     const parsed=result.data;
     const candidates=Array.isArray(parsed.candidates)?parsed.candidates.slice(0,maxSignals):[];

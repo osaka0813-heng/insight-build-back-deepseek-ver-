@@ -157,6 +157,14 @@ async function chineseStage(ctx, baseDraft) {
     timeoutMs: 95_000,
   });
 
+  if (!result?.data?.page) {
+    const error = new Error(
+      'DeepSeek Chinese stage returned an incomplete structured draft. Please retry Chinese.',
+    );
+    error.status = 502;
+    throw error;
+  }
+
   validatePage(result.data.page, 'zh');
 
   return {
@@ -170,6 +178,22 @@ async function chineseStage(ctx, baseDraft) {
 }
 
 function finalize(ctx, baseDraft, zhDraft, stageUsage, stageModels) {
+  if (!baseDraft?.en) {
+    const error = new Error(
+      'Finalize requires a valid English baseDraft. Please resume from English.',
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  if (!zhDraft?.page) {
+    const error = new Error(
+      'Finalize requires a valid Chinese draft. Please resume from Chinese.',
+    );
+    error.status = 400;
+    throw error;
+  }
+
   validatePage(baseDraft.en, 'en');
   validatePage(zhDraft.page, 'zh');
 

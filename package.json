@@ -1,6 +1,6 @@
 {
-  "name": "insight-build014-one-world-backend",
-  "version": "1.0.0",
+  "name": "insight-build014-1-one-world-backend",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {

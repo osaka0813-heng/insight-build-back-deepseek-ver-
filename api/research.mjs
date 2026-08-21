@@ -53,7 +53,7 @@ const schema = {
     querySummary: { type: 'string' },
     candidates: {
       type: 'array',
-      minItems: 3,
+      minItems: 1,
       maxItems: 8,
       items: {
         type: 'object',
@@ -134,8 +134,8 @@ function validate(result) {
   if (!result?.querySummary?.trim()) {
     throw new Error('Research is missing querySummary.');
   }
-  if (!Array.isArray(result.candidates) || result.candidates.length < 3) {
-    throw new Error('Research returned too few candidate signals.');
+  if (!Array.isArray(result.candidates) || result.candidates.length < 1) {
+    throw new Error('Research returned no candidate signals.');
   }
   for (const [index, candidate] of result.candidates.entries()) {
     if (!candidate?.content?.en || !candidate?.content?.zh) {

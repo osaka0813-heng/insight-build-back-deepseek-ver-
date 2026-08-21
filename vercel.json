@@ -9,8 +9,29 @@
     },
     "api/analyze.mjs": {
       "maxDuration": 300
+    },
+    "api/daily.mjs": {
+      "maxDuration": 300
     }
   },
+  "crons": [
+    {
+      "path": "/api/daily",
+      "schedule": "10 21 * * *"
+    },
+    {
+      "path": "/api/daily",
+      "schedule": "10 22 * * *"
+    },
+    {
+      "path": "/api/daily",
+      "schedule": "10 23 * * *"
+    },
+    {
+      "path": "/api/daily",
+      "schedule": "10 0 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",

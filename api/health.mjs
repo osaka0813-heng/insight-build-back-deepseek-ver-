@@ -4,5 +4,5 @@ export default async function handler(req,res) {
  if(req.method==='OPTIONS') return res.status(204).end();
  if(req.method!=='GET') return res.status(405).json({ok:false,error:'Method not allowed. Use GET.'});
  const config=deepseekConfig();
- return res.status(200).json({ok:true,service:'insight-deepseek-backend',version:'012.6-alpha-full-deepseek',provider:'deepseek',models:{research:config.researchModel,analyze:config.analyzeModel,write:config.writeModel},configured:Boolean(config.apiKey),checkedAt:new Date().toISOString()});
+ return res.status(200).json({ok:true,service:'insight-deepseek-backend',version:'014.2-recovery-global',pipeline:'global-en-zh-auto',provider:'deepseek-with-deterministic-fallback',models:{research:config.researchModel,analyze:config.analyzeModel,write:config.writeModel},configured:Boolean(config.apiKey),checkedAt:new Date().toISOString()});
 }

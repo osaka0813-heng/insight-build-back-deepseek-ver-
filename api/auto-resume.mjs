@@ -8,6 +8,7 @@ import {
 } from '../lib/automationJobStore.mjs';
 import {
   executeOneStage,
+  isLegacyJob,
   recordStageFailure,
 } from '../lib/automationRunner.mjs';
 
@@ -98,6 +99,14 @@ export default async function handler(req, res) {
       return send(res, 404, {
         ok: false,
         error: 'Job not found.',
+      });
+    }
+
+    if (isLegacyJob(job)) {
+      return send(res, 409, {
+        ok: false,
+        code: 'LEGACY_JOB_SUPERSEDED',
+        error: '旧四区域/日文任务不能继续，请启动新的 Global EN→ZH 任务。',
       });
     }
 

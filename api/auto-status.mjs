@@ -8,6 +8,7 @@ import {
 } from '../lib/automationJobStore.mjs';
 import {
   executeOneStage,
+  isLegacyJob,
   recordStageFailure,
 } from '../lib/automationRunner.mjs';
 
@@ -74,6 +75,15 @@ export default async function handler(req, res) {
         ok: true,
         job: undefined,
         driver: 'checkpoint-lease-v2',
+      });
+    }
+
+    if (isLegacyJob(job)) {
+      return send(res, 409, {
+        ok: false,
+        code: 'LEGACY_JOB_SUPERSEDED',
+        error: '旧四区域/日文任务已停用，请启动新的 Global EN→ZH 任务。',
+        job: publicAutomationJob(job),
       });
     }
 

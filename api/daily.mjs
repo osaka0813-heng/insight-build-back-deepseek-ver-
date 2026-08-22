@@ -25,8 +25,11 @@ function tokyoDate(now = new Date()) {
 }
 
 function baseUrl(req) {
-  const host = req.headers?.['x-forwarded-host'] || req.headers?.host ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  // Cron executions arrive on an immutable deployment hostname.  Using that
+  // hostname for the pipeline's self-calls can hit deployment protection or a
+  // stale alias, so prefer the stable production hostname Vercel provides.
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    req.headers?.['x-forwarded-host'] || req.headers?.host || process.env.VERCEL_URL;
   const normalized = String(host || '').replace(/^https?:\/\//, '');
   if (!normalized) throw new Error('Unable to determine backend URL.');
   return `https://${normalized}`;

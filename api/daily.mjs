@@ -3,6 +3,7 @@ import {
   createAutomationJob,
   publicAutomationJob,
   readAutomationJob,
+  readAutomationJobForDate,
   readLatestAutomationJob,
   releaseAutomationLease,
 } from '../lib/automationJobStore.mjs';
@@ -45,6 +46,11 @@ function terminal(job) {
   return ['completed', 'completed_with_errors'].includes(job?.status);
 }
 
+function requestedDate(req) {
+  const value = typeof req.query?.date === 'string' ? req.query.date : '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : tokyoDate();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Use GET or POST.' });
@@ -54,12 +60,14 @@ export default async function handler(req, res) {
   }
 
   const startedAt = Date.now();
-  const date = tokyoDate();
+  const date = requestedDate(req);
   const owner = `cron-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   let leasedJobId;
 
   try {
-    let job = await readLatestAutomationJob();
+    let job = date === tokyoDate()
+      ? await readLatestAutomationJob()
+      : await readAutomationJobForDate(date);
 
     if (!job || isLegacyJob(job) || job.date !== date || job.status === 'completed_with_errors') {
       job = newJob({ date, baseUrl: baseUrl(req) });

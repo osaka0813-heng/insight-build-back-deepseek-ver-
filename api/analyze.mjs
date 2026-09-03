@@ -137,7 +137,10 @@ export default async function handler(req, res) {
       '3 standalone_important_insight: important now, but premature or unnecessary to turn into a long-running process;',
       '4 noise_follow_through: interesting/supportive but not worth today’s single Insight.',
       'A candidate does NOT need an existing process match to be publishable.',
-      'Use evidence quality and global significance, not category fit, as the primary filter.',
+      'Use verifiable evidence quality, durability, breadth of affected systems and second-order consequences as the primary filter.',
+      'Do not equate violence, geopolitical drama, AI novelty, media volume or alarming language with structural importance.',
+      'When candidates are otherwise comparable, prefer the domain underrepresented in the recent pool.',
+      'A publishable candidate must preserve at least two independent current source URLs; model confidence cannot override that gate.',
       'Choose selectedCandidateId as the single best candidate.',
       'If every candidate is genuinely weak, selectedCandidateId may still identify the best candidate but mark it noise_follow_through and publishThresholdMet=false.',
       'Do not invent facts.',
@@ -199,6 +202,7 @@ export default async function handler(req, res) {
           dailyState,
           matchedProcessId: matched,
           publishThresholdMet:
+            candidate.analysis?.publishThresholdMet === true &&
             decisionType !== 'noise_follow_through' &&
             Boolean(ai.publishThresholdMet),
           warnings: [

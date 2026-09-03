@@ -6,6 +6,7 @@ import {
   deepseekResponsesJSON,
   deepseekResponsesText,
 } from '../lib/deepseekClient.mjs';
+import { selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -130,7 +131,7 @@ const schema = {
   },
 };
 
-function validate(result) {
+function validate(result, researchDate, limit) {
   if (!result?.querySummary?.trim()) {
     throw new Error('Research is missing querySummary.');
   }
@@ -145,7 +146,11 @@ function validate(result) {
       throw new Error(`Candidate ${index + 1} has fewer than two sources.`);
     }
   }
-  return result;
+  const candidates = selectDiverseQualifiedCandidates(result.candidates, researchDate, limit);
+  if (!candidates.length) {
+    throw new Error('Research returned no candidate with two independent, current, clickable sources.');
+  }
+  return { ...result, candidates };
 }
 
 export default async function handler(req, res) {
@@ -208,7 +213,8 @@ export default async function handler(req, res) {
       instructions: [
         'You are Insight Research.',
         'SIGNAL FIRST. Observe the world before thinking about existing process categories.',
-        'Search broadly across geopolitics, macroeconomics, technology, AI, energy, industry, finance, demographics, climate, health, trade, security and institutions.',
+        'Use a coverage grid: macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, technology/AI, and geopolitics/security. Scan every group before ranking.',
+        'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate unless each has exceptional primary evidence and a distinct structural consequence.',
         `Prioritize information published or materially updated near ${date}.`,
         'Look for changes, contradictions, threshold crossings, reversals, bottlenecks, new relationships and second-order effects.',
         'Do not discard an important event merely because it does not match an existing World Process.',
@@ -234,7 +240,8 @@ export default async function handler(req, res) {
         'Convert the supplied dossier into distinct candidate signals.',
         'Return 5-8 candidates when evidence supports them.',
         'Candidates should cover genuinely different changes rather than duplicates.',
-        'Each candidate needs at least two independent sources.',
+        'Each candidate needs at least two independent, non-context sources with real clickable HTTP(S) URLs and different publishers.',
+        'Omit a candidate when its URLs cannot be verified; never convert a search lead or unsupported headline into a signal.',
         'Process matching is optional. suggestedProcessId may be null.',
         'If no existing process fits, say so rather than forcing a match.',
         'Score importance, novelty, evidence strength and structural impact from 0-100.',
@@ -252,8 +259,8 @@ export default async function handler(req, res) {
       maxOutputTokens: 18_000,
     });
 
-    const data = validate(structured.data);
-    const candidates = data.candidates.slice(0, maxSignals);
+    const data = validate(structured.data, date, maxSignals);
+    const candidates = data.candidates;
 
     return send(res, 200, {
       ok: true,

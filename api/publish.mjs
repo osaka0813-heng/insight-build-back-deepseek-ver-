@@ -43,7 +43,7 @@ function getHeader(req, name) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function createReviewedDraft(writerDraft, { action, reviewedAt }) {
+function createReviewedDraft(writerDraft, { action, reviewedAt, overrideThreshold }) {
   const originalThresholdMet =
     writerDraft?.qualityChecks?.publishThresholdMet === true;
 
@@ -60,9 +60,8 @@ function createReviewedDraft(writerDraft, { action, reviewedAt }) {
     ...writerDraft,
     qualityChecks: {
       ...(writerDraft.qualityChecks || {}),
-      // Human approval is the final publication decision.
-      publishThresholdMet: true,
-      humanApproved: true,
+      publishThresholdMet: originalThresholdMet || overrideThreshold === true,
+      humanApproved: overrideThreshold === true,
       originalPublishThresholdMet: originalThresholdMet,
     },
     review,
@@ -217,6 +216,13 @@ export default async function handler(req, res) {
     const thresholdMet =
       writerDraft?.qualityChecks?.publishThresholdMet === true;
 
+    if (action === 'approve' && !thresholdMet && body.overrideThreshold !== true) {
+      return json(res, 422, {
+        ok: false,
+        error: 'Candidate does not meet publication threshold. Two independent, current, clickable sources are required.',
+      });
+    }
+
     const reviewedAt = new Date().toISOString();
 
     let backup;
@@ -240,6 +246,7 @@ export default async function handler(req, res) {
     const reviewedDraft = createReviewedDraft(writerDraft, {
       action,
       reviewedAt,
+      overrideThreshold: body.overrideThreshold,
     });
 
     let nextContent = buildNextContent({

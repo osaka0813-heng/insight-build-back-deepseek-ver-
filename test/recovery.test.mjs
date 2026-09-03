@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { validatePage } from '../lib/stagedWriter.mjs';
 import { buildFallbackWriterDraft } from '../lib/fallbackWriter.mjs';
 import { isLegacyJob, newJob, nextStage } from '../lib/automationRunner.mjs';
+import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 
 const candidate = {
   id: 'signal-test',
@@ -35,8 +36,8 @@ const candidate = {
     rationale: 'Independent evidence supports a material update.',
   },
   sources: [
-    { id: 'source-1', title: 'Primary', publisher: 'Agency', url: 'https://example.com/1', kind: 'primary' },
-    { id: 'source-2', title: 'Report', publisher: 'Media', url: 'https://example.com/2', kind: 'reliable_media' },
+    { id: 'source-1', title: 'Primary', publisher: 'Agency', url: 'https://agency.gov/report', kind: 'primary', publishedAt: '2026-08-20' },
+    { id: 'source-2', title: 'Report', publisher: 'Media', url: 'https://reuters.com/report', kind: 'reliable_media', publishedAt: '2026-08-20' },
   ],
 };
 
@@ -47,6 +48,19 @@ test('new automation jobs are Global EN/ZH only', () => {
   assert.equal(nextStage('write_zh'), 'write_finalize');
   assert.notEqual(nextStage('write_zh'), 'write_ja');
   assert.equal(isLegacyJob(job), false);
+});
+
+test('source gate rejects placeholders and duplicate publishers', () => {
+  const bad = { ...candidate, sources: [
+    { publisher: 'Same', url: 'https://example.com/a', kind: 'primary' },
+    { publisher: 'Same', url: 'https://same.news/b', kind: 'reliable_media' },
+  ] };
+  assert.equal(auditCandidateSources(bad, '2026-08-20').ok, false);
+  assert.equal(selectDiverseQualifiedCandidates([bad], '2026-08-20').length, 0);
+});
+
+test('source gate accepts two independent current URLs', () => {
+  assert.equal(auditCandidateSources(candidate, '2026-08-20').ok, true);
 });
 
 test('old four-scope jobs are superseded', () => {

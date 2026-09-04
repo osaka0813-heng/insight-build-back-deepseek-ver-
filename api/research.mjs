@@ -4,7 +4,6 @@ import {
   compactUsage,
   deepseekConfig,
   deepseekResponsesJSON,
-  deepseekResponsesText,
 } from '../lib/deepseekClient.mjs';
 import { selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 
@@ -208,38 +207,12 @@ export default async function handler(req, res) {
       tags: process.tags,
     }));
 
-    const evidence = await deepseekResponsesText({
-      model: config.researchModel,
-      instructions: [
-        'You are Insight Research.',
-        'SIGNAL FIRST. Observe the world before thinking about existing process categories.',
-        'Use a coverage grid: macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, technology/AI, and geopolitics/security. Scan every group before ranking.',
-        'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate unless each has exceptional primary evidence and a distinct structural consequence.',
-        `Prioritize information published or materially updated near ${date}.`,
-        'Look for changes, contradictions, threshold crossings, reversals, bottlenecks, new relationships and second-order effects.',
-        'Do not discard an important event merely because it does not match an existing World Process.',
-        'Prefer primary sources and strong independent reporting.',
-        'Collect evidence only. Do not write the final Insight.',
-        'Never invent facts, dates, quotes, titles or URLs.',
-      ].join(' '),
-      input: [
-        `Research date: ${date}`,
-        `Editorial focus: ${focus}`,
-        `Target candidate count: ${maxSignals}`,
-        '',
-        'Existing World Processes are REFERENCE ONLY, not search constraints:',
-        JSON.stringify(processReference),
-      ].join('\n'),
-      webSearch: true,
-      maxOutputTokens: 8_000,
-      timeoutMs: 90_000,
-      maxAttempts: 1,
-    });
-
     const structured = await deepseekResponsesJSON({
       model: config.researchModel,
       instructions: [
-        'Convert the supplied dossier into distinct candidate signals.',
+        'You are Insight Research. Search the web and return distinct candidate signals in one response.',
+        'SIGNAL FIRST. Scan macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, technology/AI, and geopolitics/security before ranking.',
+        'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate.',
         'Return 5-8 candidates when evidence supports them.',
         'Candidates should cover genuinely different changes rather than duplicates.',
         'Each candidate needs at least two independent, non-context sources with real clickable HTTP(S) URLs and different publishers.',
@@ -248,19 +221,21 @@ export default async function handler(req, res) {
         'If no existing process fits, say so rather than forcing a match.',
         'Score importance, novelty, evidence strength and structural impact from 0-100.',
         'Return only English and Simplified Chinese copy.',
-        'Use only facts and URLs contained in the dossier.',
+        'Never invent facts, dates, titles or URLs.',
       ].join(' '),
       input: [
         `Research date: ${date}`,
-        '',
-        'WEB SEARCH DOSSIER:',
-        evidence.text,
+        `Editorial focus: ${focus}`,
+        `Target candidate count: ${maxSignals}`,
+        'Existing World Processes are reference only:',
+        JSON.stringify(processReference),
       ].join('\n'),
       schema,
       schemaName: 'insight_global_signal_pool',
       maxOutputTokens: 12_000,
-      timeoutMs: 90_000,
+      timeoutMs: 180_000,
       maxAttempts: 1,
+      webSearch: true,
     });
 
     const data = validate(structured.data, date, maxSignals);
@@ -276,16 +251,10 @@ export default async function handler(req, res) {
       provider: 'deepseek',
       model: structured.model,
       usage: compactUsage({
-        input_tokens:
-          Number(evidence.usage?.input_tokens || 0) +
-          Number(structured.usage?.input_tokens || 0),
-        output_tokens:
-          Number(evidence.usage?.output_tokens || 0) +
-          Number(structured.usage?.output_tokens || 0),
+        input_tokens: Number(structured.usage?.input_tokens || 0),
+        output_tokens: Number(structured.usage?.output_tokens || 0),
         input_tokens_details: {
-          cached_tokens:
-            Number(evidence.usage?.input_tokens_details?.cached_tokens || 0) +
-            Number(structured.usage?.input_tokens_details?.cached_tokens || 0),
+          cached_tokens: Number(structured.usage?.input_tokens_details?.cached_tokens || 0),
         },
       }),
       querySummary: data.querySummary,

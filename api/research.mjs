@@ -231,7 +231,9 @@ export default async function handler(req, res) {
         JSON.stringify(processReference),
       ].join('\n'),
       webSearch: true,
-      maxOutputTokens: 12_000,
+      maxOutputTokens: 8_000,
+      timeoutMs: 90_000,
+      maxAttempts: 1,
     });
 
     const structured = await deepseekResponsesJSON({
@@ -256,7 +258,9 @@ export default async function handler(req, res) {
       ].join('\n'),
       schema,
       schemaName: 'insight_global_signal_pool',
-      maxOutputTokens: 18_000,
+      maxOutputTokens: 12_000,
+      timeoutMs: 90_000,
+      maxAttempts: 1,
     });
 
     const data = validate(structured.data, date, maxSignals);

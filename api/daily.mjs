@@ -37,14 +37,6 @@ function baseUrl(req) {
 }
 
 function authorized(req) {
-  const oneTimeDates = new Set([
-    '2026-08-29', '2026-08-30', '2026-08-31',
-    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
-  ]);
-  if (
-    oneTimeDates.has(req.query?.date) &&
-    Date.now() < Date.parse('2026-09-04T06:00:00.000Z')
-  ) return true;
   const secret = process.env.CRON_SECRET;
   if (!secret) return true;
   return req.headers?.authorization === `Bearer ${secret}`;

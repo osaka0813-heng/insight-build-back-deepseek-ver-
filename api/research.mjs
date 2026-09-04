@@ -6,6 +6,7 @@ import {
   deepseekResponsesJSON,
 } from '../lib/deepseekClient.mjs';
 import { selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
+import { collectGdeltDossier } from '../lib/gdeltResearch.mjs';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -207,10 +208,11 @@ export default async function handler(req, res) {
       tags: process.tags,
     }));
 
+    const dossier = await collectGdeltDossier(date);
     const structured = await deepseekResponsesJSON({
       model: config.researchModel,
       instructions: [
-        'You are Insight Research. Search the web and return distinct candidate signals in one response.',
+        'You are Insight Research. Convert the supplied independently indexed news records into distinct candidate signals.',
         'SIGNAL FIRST. Scan macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, technology/AI, and geopolitics/security before ranking.',
         'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate.',
         'Return 5-8 candidates when evidence supports them.',
@@ -222,6 +224,7 @@ export default async function handler(req, res) {
         'Score importance, novelty, evidence strength and structural impact from 0-100.',
         'Return only English and Simplified Chinese copy.',
         'Never invent facts, dates, titles or URLs.',
+        'Use only facts explicitly supported by the supplied titles. Preserve source URLs exactly.',
       ].join(' '),
       input: [
         `Research date: ${date}`,
@@ -229,13 +232,14 @@ export default async function handler(req, res) {
         `Target candidate count: ${maxSignals}`,
         'Existing World Processes are reference only:',
         JSON.stringify(processReference),
+        'INDEPENDENT NEWS INDEX DOSSIER:',
+        JSON.stringify(dossier),
       ].join('\n'),
       schema,
       schemaName: 'insight_global_signal_pool',
       maxOutputTokens: 12_000,
-      timeoutMs: 180_000,
+      timeoutMs: 120_000,
       maxAttempts: 1,
-      webSearch: true,
     });
 
     const data = validate(structured.data, date, maxSignals);

@@ -10,6 +10,7 @@ import {
   executeOneStage,
   isLegacyJob,
   recordStageFailure,
+  resumeFailedCheckpoint,
 } from '../lib/automationRunner.mjs';
 
 function cors(res) {
@@ -121,29 +122,14 @@ export default async function handler(req, res) {
       });
     }
 
-    const failed = Object.entries(
-      job.scopes || {},
-    ).find(([, state]) => state.status === 'error');
+    const resumed = resumeFailedCheckpoint(job);
 
     let scope = job.currentScope || 'global';
     let stage = job.currentStage || 'research';
 
-    if (failed) {
-      scope = failed[0];
-      const state = failed[1];
-
-      stage =
-        state.failedStage ||
-        state.stage ||
-        'research';
-
-      state.status = 'queued';
-      state.stage = stage;
-      state.message = `从 ${stage} 断点继续`;
-      state.attempts = {
-        ...(state.attempts || {}),
-        [stage]: 0,
-      };
+    if (resumed) {
+      scope = resumed.scope;
+      stage = resumed.stage;
     } else {
       const state = job.scopes?.[scope];
 
@@ -159,8 +145,7 @@ export default async function handler(req, res) {
     job.currentStage = stage;
     job.failedStage = undefined;
     job.completedAt = undefined;
-    job.message =
-      `${scope.toUpperCase()} 从 ${stage} 断点继续`;
+    job.message = `${scope.toUpperCase()} 从 ${stage} 断点继续`;
 
     await saveAutomationJob(job);
 

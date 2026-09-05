@@ -6,12 +6,14 @@ import {
   readAutomationJobForDate,
   readLatestAutomationJob,
   releaseAutomationLease,
+  saveAutomationJob,
 } from '../lib/automationJobStore.mjs';
 import {
   executeOneStage,
   isLegacyJob,
   newJob,
   recordStageFailure,
+  resumeFailedCheckpoint,
 } from '../lib/automationRunner.mjs';
 
 function tokyoDate(now = new Date()) {
@@ -72,6 +74,13 @@ export default async function handler(req, res) {
     if (!job || isLegacyJob(job) || job.date !== date) {
       job = newJob({ date, baseUrl: baseUrl(req) });
       await createAutomationJob(job);
+    } else if (job.status === 'completed_with_errors') {
+      const resumed = resumeFailedCheckpoint(job);
+      if (!resumed) {
+        job.status = 'failed';
+        job.message = '旧失败任务没有可恢复的有效阶段。';
+      }
+      await saveAutomationJob(job);
     } else if (terminal(job)) {
       return res.status(200).json({
         ok: true,

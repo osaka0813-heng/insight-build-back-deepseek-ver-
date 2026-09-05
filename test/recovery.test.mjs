@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validatePage } from '../lib/stagedWriter.mjs';
 import { buildFallbackWriterDraft } from '../lib/fallbackWriter.mjs';
-import { isLegacyJob, newJob, nextStage } from '../lib/automationRunner.mjs';
+import { isLegacyJob, newJob, nextStage, resumeFailedCheckpoint } from '../lib/automationRunner.mjs';
 import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 import { buildPublicContent } from '../lib/publicContent.mjs';
 
@@ -77,6 +77,23 @@ test('source gate rejects two publishers repeating one evidence origin', () => {
 
 test('old four-scope jobs are superseded', () => {
   assert.equal(isLegacyJob({ mode: 'legacy', scopes: { global: {}, japan: {} } }), true);
+});
+
+test('legacy completed-with-errors job resumes its real failed stage', () => {
+  const job = newJob({ date: '2026-09-05', baseUrl: 'https://example.com' });
+  job.status = 'completed_with_errors';
+  job.currentStage = 'complete';
+  job.completedAt = '2026-09-05T00:00:00.000Z';
+  job.scopes.global.status = 'checkpointed';
+  job.scopes.global.stage = 'complete';
+  job.scopes.global.failedStage = 'research';
+  job.scopes.global.attempts = { research: 3 };
+
+  assert.deepEqual(resumeFailedCheckpoint(job), { scope: 'global', stage: 'research' });
+  assert.equal(job.status, 'running');
+  assert.equal(job.currentStage, 'research');
+  assert.equal(job.scopes.global.attempts.research, 0);
+  assert.equal(job.completedAt, undefined);
 });
 
 test('fallback writer produces complete English and Chinese pages', () => {

@@ -6,6 +6,7 @@ import { isLegacyJob, newJob, nextStage, resumeFailedCheckpoint } from '../lib/a
 import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 import { buildPublicContent } from '../lib/publicContent.mjs';
 import { mergeRejectedDraft } from '../lib/publisher.mjs';
+import { gdeltWindow } from '../lib/gdeltResearch.mjs';
 
 const candidate = {
   id: 'signal-test',
@@ -142,10 +143,30 @@ test('rejected no-new draft still publishes the daily observation', () => {
   const draft = {
     id: 'writer-2026-09-05',
     dailyState: 'no_new_global_insight',
-    dailyStateDraft: { id: 'state-2026-09-05', date: '2026-09-05' },
+    dailyStateDraft: {
+      id: 'state-2026-09-05',
+      date: '2026-09-05',
+      insightId: 'unpublished-insight',
+      processId: 'unpublished-process',
+    },
   };
   const next = mergeRejectedDraft(current, draft, '2026-09-05T00:00:00.000Z');
   assert.equal(next.insights[0].id, 'previous-insight');
   assert.equal(next.dailyStates[0].id, 'state-2026-09-05');
+  assert.equal(next.dailyStates[0].insightId, undefined);
+  assert.equal(next.dailyStates[0].processId, undefined);
+  assert.equal(next.dailyStates[0].previousInsightId, 'previous-insight');
+  assert.equal(next.dailyStates[0].decidedAt, '2026-09-05T00:00:00.000Z');
   assert.equal(next.writerDrafts[0].status, 'rejected');
+});
+
+test('Japan-morning research scans records that already exist in UTC', () => {
+  const window = gdeltWindow(
+    '2026-09-06',
+    Date.parse('2026-09-05T22:00:00.000Z'),
+  );
+  assert.deepEqual(window, {
+    startdatetime: '20260904100000',
+    enddatetime: '20260905220000',
+  });
 });

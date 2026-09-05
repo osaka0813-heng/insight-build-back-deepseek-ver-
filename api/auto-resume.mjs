@@ -157,6 +157,7 @@ export default async function handler(req, res) {
     job.status = 'running';
     job.currentScope = scope;
     job.currentStage = stage;
+    job.failedStage = undefined;
     job.completedAt = undefined;
     job.message =
       `${scope.toUpperCase()} 从 ${stage} 断点继续`;

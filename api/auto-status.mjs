@@ -91,7 +91,7 @@ export default async function handler(req, res) {
 
     const terminal =
       job.status === 'completed' ||
-      job.status === 'completed_with_errors';
+      job.status === 'failed';
 
     if (!terminal && body.advance !== false) {
       owner = requestId();

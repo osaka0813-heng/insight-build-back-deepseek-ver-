@@ -43,7 +43,7 @@ function authorized(req) {
 }
 
 function terminal(job) {
-  return ['completed', 'completed_with_errors'].includes(job?.status);
+  return ['completed', 'failed'].includes(job?.status);
 }
 
 function requestedDate(req) {
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
       ? await readLatestAutomationJob()
       : await readAutomationJobForDate(date);
 
-    if (!job || isLegacyJob(job) || job.date !== date || job.status === 'completed_with_errors') {
+    if (!job || isLegacyJob(job) || job.date !== date) {
       job = newJob({ date, baseUrl: baseUrl(req) });
       await createAutomationJob(job);
     } else if (terminal(job)) {

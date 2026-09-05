@@ -111,12 +111,13 @@ const schema = {
               additionalProperties: false,
               required: [
                 'title', 'url', 'publisher',
-                'publishedAt', 'kind',
+                'publishedAt', 'kind', 'evidenceOrigin',
               ],
               properties: {
                 title: { type: 'string' },
                 url: { type: 'string' },
                 publisher: { type: 'string' },
+                evidenceOrigin: { type: 'string' },
                 publishedAt: { type: ['string', 'null'] },
                 kind: {
                   type: 'string',
@@ -217,7 +218,8 @@ export default async function handler(req, res) {
         'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate.',
         'Return 5-8 candidates when evidence supports them.',
         'Candidates should cover genuinely different changes rather than duplicates.',
-        'Each candidate needs at least two independent, non-context sources with real clickable HTTP(S) URLs and different publishers.',
+        'Each candidate needs at least two independent, non-context sources with real clickable HTTP(S) URLs, different publishers, and different evidence origins.',
+        'For every source, evidenceOrigin must name the organization, dataset, filing, study, measurement, or firsthand event that independently supplies the fact. If a news article merely reports another organization, use that underlying organization as evidenceOrigin. Two articles repeating the same announcement are one origin and must not be paired.',
         'Omit a candidate when its URLs cannot be verified; never convert a search lead or unsupported headline into a signal.',
         'Process matching is optional. suggestedProcessId may be null.',
         'If no existing process fits, say so rather than forcing a match.',

@@ -5,6 +5,7 @@ import { buildFallbackWriterDraft } from '../lib/fallbackWriter.mjs';
 import { isLegacyJob, newJob, nextStage, resumeFailedCheckpoint } from '../lib/automationRunner.mjs';
 import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
 import { buildPublicContent } from '../lib/publicContent.mjs';
+import { mergeRejectedDraft } from '../lib/publisher.mjs';
 
 const candidate = {
   id: 'signal-test',
@@ -126,4 +127,25 @@ test('public content excludes editorial drafts and unused candidates', () => {
   assert.equal('researchDrafts' in result, false);
   assert.equal('writerDrafts' in result, false);
   assert.equal('ja' in result.insights[0].content, false);
+});
+
+test('rejected no-new draft still publishes the daily observation', () => {
+  const current = {
+    schemaVersion: 1,
+    generatedAt: '2026-09-04T00:00:00.000Z',
+    contentVersion: 'old',
+    insights: [{ id: 'previous-insight' }],
+    worldProcesses: [],
+    dailyStates: [{ id: 'previous-state', date: '2026-09-04' }],
+    writerDrafts: [],
+  };
+  const draft = {
+    id: 'writer-2026-09-05',
+    dailyState: 'no_new_global_insight',
+    dailyStateDraft: { id: 'state-2026-09-05', date: '2026-09-05' },
+  };
+  const next = mergeRejectedDraft(current, draft, '2026-09-05T00:00:00.000Z');
+  assert.equal(next.insights[0].id, 'previous-insight');
+  assert.equal(next.dailyStates[0].id, 'state-2026-09-05');
+  assert.equal(next.writerDrafts[0].status, 'rejected');
 });

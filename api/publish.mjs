@@ -1,4 +1,4 @@
-import { readRemoteContent, writeRemoteContent } from '../lib/githubContent.mjs';
+import { readRemoteContent, writeContentPair } from '../lib/githubContent.mjs';
 import { mergeApprovedDraft, mergeRejectedDraft } from '../lib/publisher.mjs';
 import { applyWorldProcessFoundation } from '../lib/worldProcessFoundation.mjs';
 import { repairInsightProcessLinks } from '../lib/insightProcessLinkage.mjs';
@@ -8,6 +8,7 @@ import {
   validateContentBundle,
 } from '../lib/contentSafety.mjs';
 import { repairWriterDraft } from '../lib/writerDraftRepair.mjs';
+import { buildPublicContent } from '../lib/publicContent.mjs';
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -96,7 +97,8 @@ function isGitHubConflict(error) {
     message.includes('[status=409') ||
     message.includes('status=409') ||
     message.includes('but expected') ||
-    message.includes('sha does not match')
+    message.includes('sha does not match') ||
+    message.includes('[status=422')
   );
 }
 
@@ -281,10 +283,11 @@ export default async function handler(req, res) {
       writeAttempts += 1;
 
       try {
-        commit = await writeRemoteContent({
+        commit = await writeContentPair({
           config: workingCurrent.config,
           sha: workingCurrent.sha,
           content: nextContent,
+          publicContent: buildPublicContent(nextContent),
           message,
         });
         break;
@@ -375,7 +378,7 @@ export default async function handler(req, res) {
             writerDraft.insight?.processId
           : undefined,
       commit,
-      content: nextContent,
+      content: buildPublicContent(nextContent),
       safety: {
         backupPath: backup.path,
         backupCommitSha: backup.commitSha,

@@ -4,6 +4,7 @@ import { validatePage } from '../lib/stagedWriter.mjs';
 import { buildFallbackWriterDraft } from '../lib/fallbackWriter.mjs';
 import { isLegacyJob, newJob, nextStage } from '../lib/automationRunner.mjs';
 import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/researchQuality.mjs';
+import { buildPublicContent } from '../lib/publicContent.mjs';
 
 const candidate = {
   id: 'signal-test',
@@ -36,8 +37,8 @@ const candidate = {
     rationale: 'Independent evidence supports a material update.',
   },
   sources: [
-    { id: 'source-1', title: 'Primary', publisher: 'Agency', url: 'https://agency.gov/report', kind: 'primary', publishedAt: '2026-08-20' },
-    { id: 'source-2', title: 'Report', publisher: 'Media', url: 'https://reuters.com/report', kind: 'reliable_media', publishedAt: '2026-08-20' },
+    { id: 'source-1', title: 'Primary', publisher: 'Agency', evidenceOrigin: 'Agency dataset', url: 'https://agency.gov/report', kind: 'primary', publishedAt: '2026-08-20' },
+    { id: 'source-2', title: 'Report', publisher: 'Media', evidenceOrigin: 'Independent market survey', url: 'https://reuters.com/report', kind: 'reliable_media', publishedAt: '2026-08-20' },
   ],
 };
 
@@ -63,6 +64,17 @@ test('source gate accepts two independent current URLs', () => {
   assert.equal(auditCandidateSources(candidate, '2026-08-20').ok, true);
 });
 
+test('source gate rejects two publishers repeating one evidence origin', () => {
+  const repeated = {
+    ...candidate,
+    sources: candidate.sources.map((source) => ({
+      ...source,
+      evidenceOrigin: 'Same agency announcement',
+    })),
+  };
+  assert.equal(auditCandidateSources(repeated, '2026-08-20').ok, false);
+});
+
 test('old four-scope jobs are superseded', () => {
   assert.equal(isLegacyJob({ mode: 'legacy', scopes: { global: {}, japan: {} } }), true);
 });
@@ -78,4 +90,23 @@ test('fallback writer produces complete English and Chinese pages', () => {
   assert.equal(draft.provider, 'deterministic-fallback');
   assert.equal(draft.pipeline, 'build014.2-recovery');
   assert.equal(draft.qualityChecks.languagesComplete, true);
+});
+
+test('public content excludes editorial drafts and unused candidates', () => {
+  const content = {
+    schemaVersion: 1,
+    generatedAt: '2026-09-05T00:00:00.000Z',
+    contentVersion: 'test',
+    insights: [{ id: 'insight-1', content: { en: { title: 'EN' }, zh: { title: 'ZH' }, ja: { title: 'JA' } } }],
+    worldProcesses: [{ id: 'process-1' }],
+    dailyStates: [{ id: 'state-1', candidateSignalIds: ['kept'] }],
+    dailyCandidates: [{ id: 'kept' }, { id: 'unused' }],
+    researchDrafts: [{ id: 'research-secret' }],
+    writerDrafts: [{ id: 'writer-secret' }],
+  };
+  const result = buildPublicContent(content);
+  assert.deepEqual(result.dailyCandidates.map((item) => item.id), ['kept']);
+  assert.equal('researchDrafts' in result, false);
+  assert.equal('writerDrafts' in result, false);
+  assert.equal('ja' in result.insights[0].content, false);
 });

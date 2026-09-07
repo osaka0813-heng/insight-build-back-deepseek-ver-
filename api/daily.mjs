@@ -48,9 +48,35 @@ function terminal(job) {
   return job?.status === 'completed';
 }
 
-function requestedDate(req) {
+function explicitDate(req) {
   const value = typeof req.query?.date === 'string' ? req.query.date : '';
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : tokyoDate();
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
+
+export function shiftDate(date, days) {
+  const [year, month, day] = date.split('-').map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1, day + days));
+  return shifted.toISOString().slice(0, 10);
+}
+
+async function scheduledDate(req) {
+  const requested = explicitDate(req);
+  if (requested) return requested;
+
+  const today = tokyoDate();
+  const todayJob = await readAutomationJobForDate(today);
+  if (!todayJob || isLegacyJob(todayJob) || todayJob.status !== 'completed') {
+    return today;
+  }
+
+  // Once today's observation is safely published, use later wake-ups to heal
+  // either of the two immediately preceding dates, oldest first.
+  for (const offset of [-2, -1]) {
+    const date = shiftDate(today, offset);
+    const job = await readAutomationJobForDate(date);
+    if (job && !isLegacyJob(job) && job.status !== 'completed') return date;
+  }
+  return today;
 }
 
 export default async function handler(req, res) {
@@ -62,7 +88,7 @@ export default async function handler(req, res) {
   }
 
   const startedAt = Date.now();
-  const date = requestedDate(req);
+  const date = await scheduledDate(req);
   const owner = `cron-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   let leasedJobId;
 

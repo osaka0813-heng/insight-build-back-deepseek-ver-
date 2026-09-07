@@ -7,6 +7,7 @@ import { auditCandidateSources, selectDiverseQualifiedCandidates } from '../lib/
 import { buildPublicContent } from '../lib/publicContent.mjs';
 import { mergeRejectedDraft } from '../lib/publisher.mjs';
 import { gdeltWindow } from '../lib/gdeltResearch.mjs';
+import { shiftDate } from '../api/daily.mjs';
 
 const candidate = {
   id: 'signal-test',
@@ -169,4 +170,9 @@ test('Japan-morning research scans records that already exist in UTC', () => {
     startdatetime: '20260904100000',
     enddatetime: '20260905220000',
   });
+});
+
+test('daily backlog dates cross month boundaries safely', () => {
+  assert.equal(shiftDate('2026-09-01', -2), '2026-08-30');
+  assert.equal(shiftDate('2027-01-01', -1), '2026-12-31');
 });

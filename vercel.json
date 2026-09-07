@@ -37,6 +37,10 @@
     },
     {
       "path": "/api/daily",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/daily",
       "schedule": "0 4 * * *"
     },
     {

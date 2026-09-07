@@ -45,7 +45,7 @@ function authorized(req) {
 }
 
 function terminal(job) {
-  return ['completed', 'failed'].includes(job?.status);
+  return job?.status === 'completed';
 }
 
 function requestedDate(req) {
@@ -74,14 +74,19 @@ export default async function handler(req, res) {
     if (!job || isLegacyJob(job) || job.date !== date) {
       job = newJob({ date, baseUrl: baseUrl(req) });
       await createAutomationJob(job);
-    } else if (job.status === 'completed_with_errors') {
+    } else if (['completed_with_errors', 'failed'].includes(job.status)) {
       const resumed = resumeFailedCheckpoint(job);
       if (!resumed) {
         job.status = 'failed';
         job.message = '旧失败任务没有可恢复的有效阶段。';
+        return res.status(200).json({
+          ok: false,
+          unrecoverable: true,
+          job: publicAutomationJob(job),
+        });
       }
       await saveAutomationJob(job);
-    } else if (terminal(job)) {
+    } else if (job.status === 'completed') {
       return res.status(200).json({
         ok: true,
         alreadyComplete: true,

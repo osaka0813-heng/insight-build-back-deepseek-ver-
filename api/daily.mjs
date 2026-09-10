@@ -57,7 +57,10 @@ function explicitDate(req) {
 async function observationExists(date) {
   const remote = await readRemoteContent();
   return (remote.content?.dailyStates || []).some(
-    (state) => state?.date === date,
+    (state) =>
+      state?.date === date &&
+      state?.content?.en &&
+      state?.content?.zh,
   );
 }
 

@@ -15,6 +15,7 @@ import {
   recordStageFailure,
   resumeFailedCheckpoint,
 } from '../lib/automationRunner.mjs';
+import { readRemoteContent } from '../lib/githubContent.mjs';
 
 function tokyoDate(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -51,6 +52,31 @@ function terminal(job) {
 function explicitDate(req) {
   const value = typeof req.query?.date === 'string' ? req.query.date : '';
   return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
+
+async function observationExists(date) {
+  const remote = await readRemoteContent();
+  return (remote.content?.dailyStates || []).some(
+    (state) => state?.date === date,
+  );
+}
+
+async function reopenMissingPublication(job) {
+  if (job?.status !== 'completed' || await observationExists(job.date)) {
+    return false;
+  }
+  const state = job.scopes?.global;
+  if (!state?.writerDraft) return false;
+  state.status = 'checkpointed';
+  state.stage = 'publish';
+  state.message = '修复缺失的每日公开记录';
+  job.status = 'running';
+  job.currentScope = 'global';
+  job.currentStage = 'publish';
+  job.completedAt = undefined;
+  job.message = '重新发布缺失的每日观察';
+  await saveAutomationJob(job);
+  return true;
 }
 
 export function shiftDate(date, days) {
@@ -112,7 +138,7 @@ export default async function handler(req, res) {
         });
       }
       await saveAutomationJob(job);
-    } else if (job.status === 'completed') {
+    } else if (job.status === 'completed' && !(await reopenMissingPublication(job))) {
       return res.status(200).json({
         ok: true,
         alreadyComplete: true,

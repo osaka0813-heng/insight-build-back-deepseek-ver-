@@ -127,37 +127,77 @@ async function chineseStage(ctx, baseDraft) {
 
   const config = deepseekConfig();
 
-  const result = await deepseekToolJSON({
-    model: config.researchModel,
-    system: [
-      'You are the Simplified Chinese editor for Insight.',
-      'Translate and locally edit the supplied English master into natural concise Simplified Chinese.',
-      'Preserve structure, evidence confidence, source IDs and item counts.',
-      'Do not add facts, dates, numbers, URLs or citations.',
-      'Do not translate IDs.',
-      'Page 4 must remain complete.',
-      'Return only the required structured result.',
-    ].join(' '),
-    user: JSON.stringify({
-      englishMaster: {
-        page: baseDraft.en,
-        dailyState: baseDraft.dailyStateEn,
-        processContent: baseDraft.processContentEn,
-        nextQuestion: baseDraft.nextQuestionEn,
-        observeNext: baseDraft.observeNextEn,
-      },
-      sourceIds: (ctx.candidate.sources || [])
-        .map((source) => source.id)
-        .filter(Boolean),
-    }),
-    toolName: 'submit_global_chinese_draft',
-    schema: translationStageSchema,
-    reasoningEffort: 'medium',
-    maxTokens: 6_500,
-    timeoutMs: 95_000,
-  });
+  const master = {
+    page: baseDraft.en,
+    dailyState: baseDraft.dailyStateEn,
+    processContent: baseDraft.processContentEn,
+    nextQuestion: baseDraft.nextQuestionEn,
+    observeNext: baseDraft.observeNextEn,
+  };
+  const translated = structuredClone(master);
+  const entries = [];
+  const preservedKeys = new Set(['id', 'sourceIds', 'confidence']);
+  function collect(value, copy, path = []) {
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => collect(item, copy[index], [...path, index]));
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    for (const [key, item] of Object.entries(value)) {
+      if (preservedKeys.has(key)) continue;
+      if (typeof item === 'string') entries.push({ path: [...path, key], text: item });
+      else collect(item, copy[key], [...path, key]);
+    }
+  }
+  collect(master, translated);
 
-  if (!result?.data?.page) {
+  const chunkSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['translations'],
+    properties: {
+      translations: {
+        type: 'array',
+        items: { type: 'string', minLength: 1 },
+      },
+    },
+  };
+  const models = [];
+  const usages = [];
+  for (let offset = 0; offset < entries.length; offset += 12) {
+    const chunk = entries.slice(offset, offset + 12);
+    const result = await deepseekToolJSON({
+      model: config.researchModel,
+      system: [
+        'Translate each input string into concise natural Simplified Chinese.',
+        'Return exactly one translation for every input string, in the same order.',
+        'Do not add facts, dates, numbers, URLs or commentary.',
+      ].join(' '),
+      user: JSON.stringify({ strings: chunk.map((item) => item.text) }),
+      toolName: 'submit_chinese_translations',
+      schema: chunkSchema,
+      reasoningEffort: 'medium',
+      maxTokens: 3_000,
+      timeoutMs: 45_000,
+    });
+    if (result.data?.translations?.length !== chunk.length) {
+      const error = new Error(
+        `Chinese translation count mismatch: expected ${chunk.length}, received ${result.data?.translations?.length || 0}.`,
+      );
+      error.status = 502;
+      throw error;
+    }
+    chunk.forEach((entry, index) => {
+      let target = translated;
+      entry.path.slice(0, -1).forEach((key) => { target = target[key]; });
+      target[entry.path.at(-1)] = result.data.translations[index];
+    });
+    models.push(result.model);
+    usages.push(compactUsage(result.usage));
+  }
+
+  const data = translated;
+  if (!data?.page) {
     const error = new Error(
       'DeepSeek Chinese stage returned an incomplete structured draft. Please retry Chinese.',
     );
@@ -165,15 +205,15 @@ async function chineseStage(ctx, baseDraft) {
     throw error;
   }
 
-  validatePage(result.data.page, 'zh');
+  validatePage(data.page, 'zh');
 
   return {
     ok: true,
     stage: 'zh',
     language: 'zh',
-    localizedDraft: result.data,
-    model: result.model,
-    usage: compactUsage(result.usage),
+    localizedDraft: data,
+    model: Array.from(new Set(models)).join(' + '),
+    usage: mergeUsage(...usages),
   };
 }
 
@@ -318,11 +358,3 @@ export default async function handler(req, res) {
       {
         ok: false,
         error:
-          error instanceof Error
-            ? error.message
-            : 'Unknown write error.',
-        missingFields: error?.missingFields,
-      },
-    );
-  }
-}

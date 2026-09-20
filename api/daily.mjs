@@ -182,6 +182,9 @@ export default async function handler(req, res) {
       job = await readAutomationJob(job.id);
     }
 
+    await releaseAutomationLease(job.id, owner);
+    leasedJobId = undefined;
+    job = await readAutomationJob(job.id);
     return res.status(terminal(job) ? 200 : 202).json({
       ok: true,
       driver: 'vercel-cron-global-v1',

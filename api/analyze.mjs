@@ -202,7 +202,7 @@ export default async function handler(req, res) {
           dailyState,
           matchedProcessId: matched,
           publishThresholdMet:
-            candidate.analysis?.publishThresholdMet === true &&
+            Number(candidate.independentSourceCount || 0) >= 2 &&
             decisionType !== 'noise_follow_through' &&
             Boolean(ai.publishThresholdMet),
           warnings: [

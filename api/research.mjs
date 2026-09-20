@@ -139,15 +139,10 @@ function validate(result, researchDate, limit) {
   if (!Array.isArray(result.candidates) || result.candidates.length < 1) {
     throw new Error('Research returned no candidate signals.');
   }
-  for (const [index, candidate] of result.candidates.entries()) {
-    if (!candidate?.content?.en || !candidate?.content?.zh) {
-      throw new Error(`Candidate ${index + 1} is missing EN/ZH copy.`);
-    }
-    if (!Array.isArray(candidate.sources) || candidate.sources.length < 2) {
-      throw new Error(`Candidate ${index + 1} has fewer than two sources.`);
-    }
-  }
-  const candidates = selectDiverseQualifiedCandidates(result.candidates, researchDate, limit);
+  const eligible = result.candidates.filter(candidate =>
+    candidate?.content?.en && candidate?.content?.zh &&
+    Array.isArray(candidate.sources) && candidate.sources.length >= 2);
+  const candidates = selectDiverseQualifiedCandidates(eligible, researchDate, limit);
   if (!candidates.length) {
     throw new Error('Research returned no candidate with two independent, current, clickable sources.');
   }

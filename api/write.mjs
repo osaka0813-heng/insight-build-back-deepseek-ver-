@@ -358,3 +358,11 @@ export default async function handler(req, res) {
       {
         ok: false,
         error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown write error.',
+        missingFields: error?.missingFields,
+      },
+    );
+  }
+}

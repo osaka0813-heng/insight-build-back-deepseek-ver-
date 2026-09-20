@@ -139,7 +139,10 @@ async function chineseStage(ctx, baseDraft) {
   const preservedKeys = new Set(['id', 'sourceIds', 'confidence']);
   function collect(value, copy, path = []) {
     if (Array.isArray(value)) {
-      value.forEach((item, index) => collect(item, copy[index], [...path, index]));
+      value.forEach((item, index) => {
+        if (typeof item === 'string') entries.push({ path: [...path, index], text: item });
+        else collect(item, copy[index], [...path, index]);
+      });
       return;
     }
     if (!value || typeof value !== 'object') return;

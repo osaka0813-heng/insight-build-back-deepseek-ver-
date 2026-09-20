@@ -65,6 +65,16 @@ async function observationExists(date) {
 }
 
 async function reopenMissingPublication(job) {
+  if (job?.status === 'completed' && job.scopes?.global?.writerDraft?.id?.startsWith('writer-research-unavailable-')) {
+    job.status = 'running';
+    job.currentScope = 'global';
+    job.currentStage = 'research';
+    job.scopes.global = { status: 'queued', stage: 'research', attempts: {} };
+    delete job.completedAt;
+    job.message = '重新执行此前失败的研究';
+    await saveAutomationJob(job);
+    return true;
+  }
   if (job?.status !== 'completed' || await observationExists(job.date)) {
     return false;
   }
@@ -162,7 +172,7 @@ export default async function handler(req, res) {
     job = lease.job;
 
     let steps = 0;
-    while (!terminal(job) && Date.now() - startedAt < 260_000 && steps < 12) {
+    while (!terminal(job) && Date.now() - startedAt < 260_000 && steps < 1) {
       try {
         await executeOneStage(job);
       } catch (error) {

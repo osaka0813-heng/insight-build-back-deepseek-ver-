@@ -213,6 +213,7 @@ export default async function handler(req, res) {
         'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate.',
         'Return 5-8 candidates when evidence supports them.',
         'Candidates should cover genuinely different changes rather than duplicates.',
+        'Use corroboratedPairs first: they are deterministic cross-publisher headline matches extracted from the dossier. Check the underlying titles and URLs, then turn valid pairs into candidates before considering unpaired records.',
         'Each candidate needs at least two non-context sources with real clickable HTTP(S) URLs and different publishers.',
         'For every source, evidenceOrigin must name the organization, dataset, filing, study, measurement, firsthand event, interview, or independent reporting that supplies the fact. Preserve shared origins honestly: two publishers may corroborate one event even when they cite the same event or decision. The Analyze stage will discount candidates that merely repeat one announcement.',
         'Omit a candidate when its URLs cannot be verified; never convert a search lead or unsupported headline into a signal.',

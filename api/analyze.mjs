@@ -1,6 +1,7 @@
 
 import worldProcesses from '../data/world-process-catalog.json' with { type: 'json' };
 import { analyzeDraft } from '../lib/analyst.mjs';
+import { domainBucket } from '../lib/researchQuality.mjs';
 import {
   compactUsage,
   deepseekConfig,
@@ -95,6 +96,27 @@ function cors(res) {
 function send(res, status, payload) {
   cors(res);
   return res.status(status).json(payload);
+}
+
+export function chooseBalancedCandidate(candidates, modelSelectedId) {
+  const scored = (candidates || []).map((candidate) => {
+    const priority = Number(candidate.analysis?.priorityScore || 0);
+    const material = Number(candidate.analysis?.materialChangeScore || 0);
+    const evidence = Number(candidate.evidenceStrength || 0);
+    const novelty = Number(candidate.novelty || 0);
+    const importance = Number(candidate.importance || 0);
+    const domain = domainBucket(candidate);
+    const saliencePenalty = ['technology-ai', 'geopolitics-security'].includes(domain) ? 12 : 0;
+    const modelBonus = candidate.id === modelSelectedId ? 3 : 0;
+    return {
+      candidate,
+      score: priority * 0.45 + evidence * 0.20 + novelty * 0.15 +
+        importance * 0.10 + material * 0.10 + modelBonus - saliencePenalty,
+    };
+  });
+  const publishable = scored.filter(({ candidate }) => candidate.analysis?.publishThresholdMet);
+  return (publishable.length ? publishable : scored)
+    .sort((a, b) => b.score - a.score)[0]?.candidate;
 }
 
 export default async function handler(req, res) {
@@ -213,7 +235,7 @@ export default async function handler(req, res) {
       };
     });
 
-    const selectedId = result.data.selectedCandidateId;
+    const selectedId = chooseBalancedCandidate(candidates, result.data.selectedCandidateId)?.id;
     const ordered = [...candidates].sort((a, b) => {
       if (a.id === selectedId) return -1;
       if (b.id === selectedId) return 1;

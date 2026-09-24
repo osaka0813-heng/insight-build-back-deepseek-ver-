@@ -55,7 +55,7 @@ const schema = {
     candidates: {
       type: 'array',
       minItems: 1,
-      maxItems: 8,
+      maxItems: 12,
       items: {
         type: 'object',
         additionalProperties: false,
@@ -139,10 +139,15 @@ function validate(result, researchDate, limit) {
   if (!Array.isArray(result.candidates) || result.candidates.length < 1) {
     throw new Error('Research returned no candidate signals.');
   }
-  const eligible = result.candidates.filter(candidate =>
-    candidate?.content?.en && candidate?.content?.zh &&
-    Array.isArray(candidate.sources) && candidate.sources.length >= 2);
-  const candidates = selectDiverseQualifiedCandidates(eligible, researchDate, limit);
+  for (const [index, candidate] of result.candidates.entries()) {
+    if (!candidate?.content?.en || !candidate?.content?.zh) {
+      throw new Error(`Candidate ${index + 1} is missing EN/ZH copy.`);
+    }
+    if (!Array.isArray(candidate.sources) || candidate.sources.length < 2) {
+      throw new Error(`Candidate ${index + 1} has fewer than two sources.`);
+    }
+  }
+  const candidates = selectDiverseQualifiedCandidates(result.candidates, researchDate, limit);
   if (!candidates.length) {
     throw new Error('Research returned no candidate with two independent, current, clickable sources.');
   }
@@ -189,8 +194,8 @@ export default async function handler(req, res) {
 
     const requested = Number(body.maxSignals);
     const maxSignals = Number.isFinite(requested)
-      ? Math.min(8, Math.max(5, Math.trunc(requested)))
-      : 6;
+      ? Math.min(12, Math.max(8, Math.trunc(requested)))
+      : 10;
 
     const config = deepseekConfig();
 
@@ -209,9 +214,11 @@ export default async function handler(req, res) {
       model: config.researchModel,
       instructions: [
         'You are Insight Research. Convert the supplied independently indexed news records into distinct candidate signals.',
-        'SIGNAL FIRST. Scan macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, technology/AI, and geopolitics/security before ranking.',
+        'PARALLEL COVERAGE FIRST. Independently inspect every supplied domain lane before any global ranking: macro/finance, industry/trade, energy/resources, health/science, climate/environment, demographics/society, institutions/culture, urban/infrastructure, technology/AI, and geopolitics/security.',
+        'Build a candidate inside each evidence-supported domain first, then compare all candidates globally. This is simultaneous coverage, never a rotating topic quota.',
         'Do not treat war or AI as inherently more important. Include at most one AI candidate and at most one conflict/security candidate.',
-        'Return 5-8 candidates when evidence supports them.',
+        'Return 8-12 candidates when evidence supports them. Preserve at least one qualified candidate from each domain that has two independent sources.',
+        'A valid insight may be a structural turn, a meaningful advance in an existing trend, or a well-evidenced early signal. Do not require every candidate to rewrite the whole world.',
         'Candidates should cover genuinely different changes rather than duplicates.',
         'Use corroboratedPairs first: they are deterministic cross-publisher headline matches extracted from the dossier. Check the underlying titles and URLs, then turn valid pairs into candidates before considering unpaired records.',
         'Each candidate needs at least two non-context sources with real clickable HTTP(S) URLs and different publishers.',

@@ -8,6 +8,7 @@ import { buildPublicContent } from '../lib/publicContent.mjs';
 import { mergeApprovedDraft, mergeRejectedDraft } from '../lib/publisher.mjs';
 import { buildCorroboratedPairs, gdeltWindow, parseFeed } from '../lib/gdeltResearch.mjs';
 import { shiftDate } from '../api/daily.mjs';
+import { chooseBalancedCandidate } from '../api/analyze.mjs';
 import { analyzeCandidate } from '../lib/analyst.mjs';
 
 const candidate = {
@@ -96,6 +97,20 @@ test('candidate pool protects distinct domains before adding a second topic', ()
   assert.deepEqual(new Set(selected.map((item) => item.domain)), new Set([
     'technology-ai', 'health-science', 'urban-infrastructure',
   ]));
+});
+
+test('high-salience topics must clearly outperform quieter domains', () => {
+  const analyzed = (id, domain, priority) => ({
+    ...candidate,
+    id,
+    domain,
+    analysis: { ...candidate.analysis, priorityScore: priority, materialChangeScore: 60 },
+  });
+  const selected = chooseBalancedCandidate([
+    analyzed('conflict', 'geopolitics-security', 84),
+    analyzed('health', 'health-science', 80),
+  ], 'conflict');
+  assert.equal(selected.id, 'health');
 });
 
 test('source gate admits two publishers while preserving origin concentration for analysis', () => {
